@@ -1,0 +1,27 @@
+{
+  "name": "cognicity-grasp",
+  "version": "0.0.1",
+  "description": "Geosocial Rapid Assessment Platform for CogniCity",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/urbanriskmap/cognicity-grasp.git"
+  },
+  "keywords": [
+    "geosocial",
+    "cognicity"
+  ],
+  "author": "Tomas Holderness",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/urbanriskmap/cognicity-grasp/issues"
+  },
+  "homepage": "https://github.com/urbanriskmap/cognicity-grasp#readme",
+  "dependencies": {
+    "massive": "^2.5.0",
+    "shortid": "^2.2.6"
+  }
+}

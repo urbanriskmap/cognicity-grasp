@@ -79,7 +79,6 @@ get.reports?card_id
 8MP camera @ 1.7MB per image
 =56,000MB AKA 56 gigabytes of data
 
-
 # Future work
 -> Geo reminder bot
 -> Alerts integration
