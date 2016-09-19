@@ -82,6 +82,30 @@ CognicityGrasp.prototype = {
         });
       }
     });
+  },
+
+  /**
+   * Create card unique id, register in database, and return value via callback
+   * @param {card_id} string Card id
+   */
+  checkCardStatus: function(card_id, callback){
+
+     var self = this;
+     console.log(card_id);
+     self.db.checkCardStatus([card_id], function(err, result){
+       if (err) {
+         console.log(err);
+         return;
+       }
+       else {
+         if (result[0]){
+             callback(result[0]);
+           }
+         else {
+            callback({result:'invalid'});
+          }
+        }
+     });
   }
 };
 

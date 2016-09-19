@@ -10,10 +10,15 @@
 
 // Node dependencies
 var Massive = require('massive');
+var express = require('express');
 
 // Connect to database
 var db = Massive.connectSync({db: "cognicity_grasp"});
 
+// Init express app
+var app = express();
+
+// Grasp object
 var CognicityGrasp = require('./CognicityGrasp');
 
 var config = {};
@@ -24,6 +29,24 @@ var grasp = new CognicityGrasp(config, db, logger, exitWithStatus);
 
 grasp.issueCard(function(result){console.log(result);});
 
-// Routes
+//grasp.checkCardStatus('1', function(result){console.log(result[0]);});
 
-//+checking for card ID.
+// Routes
+app.get('/report/:card_id', function(req, res, next){
+    var status = grasp.checkCardStatus(req.params.card_id, function(result){
+    if ( result.received === false){
+      res.send('Success - proceed with report');
+    }
+    else if (result.received === true){
+      res.send('Error - report already received');
+    }
+    else {
+      res.send('Error - report card id invalid');
+    }
+  })
+});
+
+
+app.listen(3000, function(){
+  console.log('express listening');
+});
