@@ -4,7 +4,9 @@
   "description": "Geosocial Rapid Assessment Platform for CogniCity",
   "main": "index.js",
   "scripts": {
-    "test": "jshint *.js"
+    "mocha": "mocha test",
+    "lint": "jshint *.js",
+    "test": "npm run lint && npm run mocha"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,8 @@
     "shortid": "^2.2.6"
   },
   "devDependencies": {
-    "jshint": "^2.9.3"
+    "jshint": "^2.9.3",
+    "mocha": "^3.0.2",
+    "unit.js": "^2.0.0"
   }
 }

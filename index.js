@@ -23,3 +23,7 @@ var exitWithStatus = function(err){console.log(err);};
 var grasp = new CognicityGrasp(config, db, logger, exitWithStatus);
 
 grasp.issueCard(function(result){console.log(result);});
+
+// Routes
+
+//+checking for card ID.

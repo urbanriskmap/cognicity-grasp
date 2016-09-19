@@ -60,8 +60,10 @@ CognicityGrasp.prototype = {
 
     var self = this;
 
+    // Create card id
     var _card_id = shortid.generate();
 
+    // Update database
     self.db.issueCard([_card_id], function(err, result){
       if (err){
         console.log(err);
@@ -74,9 +76,10 @@ CognicityGrasp.prototype = {
             return;
           }
           else {
+            // Return card id
             callback(_card_id);
           }
-        })
+        });
       }
     });
   }
