@@ -3,7 +3,6 @@
 // Node requirements
 var shortid = require('shortid');
 
-
 /**
  * A CognicityGrasp object manages requests and receiepts of user reports
  * @constructor
@@ -51,6 +50,12 @@ CognicityGrasp.prototype = {
   */
   exitWithStatus: null,
 
+  /**
+   * Private method to generate card id (nested function allows testing)
+   */
+  _generate_id : function(){
+    return shortid.generate();
+  },
 
   /**
    * Create card unique id, register in database, and return value via callback
@@ -61,7 +66,7 @@ CognicityGrasp.prototype = {
     var self = this;
 
     // Create card id
-    var _card_id = shortid.generate();
+    var _card_id = self._generate_id();
 
     // Update database
     self.db.issueCard([_card_id], function(err, result){

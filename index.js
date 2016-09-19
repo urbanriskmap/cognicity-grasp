@@ -33,7 +33,7 @@ grasp.issueCard(function(result){console.log(result);});
 
 // Routes
 app.get('/report/:card_id', function(req, res, next){
-    var status = grasp.checkCardStatus(req.params.card_id, function(result){
+    grasp.checkCardStatus(req.params.card_id, function(result){
     if ( result.received === false){
       res.send('Success - proceed with report');
     }
@@ -43,7 +43,7 @@ app.get('/report/:card_id', function(req, res, next){
     else {
       res.send('Error - report card id invalid');
     }
-  })
+  });
 });
 
 
