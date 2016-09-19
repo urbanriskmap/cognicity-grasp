@@ -3,6 +3,8 @@ cognicity-grasp
 
 ## Geosocial Rapid Assessment Platform for CogniCity
 
+[![Build Status](https://travis-ci.org/urbanriskmap/cognicity-grasp.svg?branch=master)](https://travis-ci.org/urbanriskmap/cognicity-grasp)
+
 Card -> Outbound
 
 Report <- Inbound
