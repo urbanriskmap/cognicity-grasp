@@ -16,6 +16,10 @@ var db = Massive.connectSync({db: "cognicity_grasp"});
 
 var CognicityGrasp = require('./CognicityGrasp');
 
-var grasp = new CognicityGrasp();
+var config = {};
+var logger = {};
+var exitWithStatus = function(err){console.log(err);};
 
-console.log(grasp.generateCardID());
+var grasp = new CognicityGrasp(config, db, logger, exitWithStatus);
+
+grasp.issueCard(function(result){console.log(result);});

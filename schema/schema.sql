@@ -20,12 +20,12 @@ CREATE TABLE grasp_whatsapp_users (
   CONSTRAINT grasp_whatsapp_users PRIMARY KEY (pkey)
 );*/
 
---Table grasp_card_id (card_id, recieved[true/false])
+--Table grasp_card_id (card_id, received[true/false])
 CREATE TABLE grasp_cards (
   pkey bigserial NOT NULL,
   card_id varchar NOT NULL,
   received boolean,
-  CONSTRAINT grasp_cards PRIMARY KEY (pkey)
+  CONSTRAINT pkey_grasp_cards PRIMARY KEY (pkey)
 );
 
 --Table grasp_reports
