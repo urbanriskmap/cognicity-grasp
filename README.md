@@ -69,6 +69,12 @@ get.reports?card_id
 -> geoJson of reports
 -> images linked as URLS
 
+social endpoints/
+- Alerts
+- Report / Flood
+- Subscribe
+- Unsubscribe
+
 # WhatsApp
 - wrappers around send and receive
 - user info not needed, 'just blind endpoint to start with'

@@ -71,17 +71,19 @@ CognicityGrasp.prototype = {
     // Update database
     self.db.issueCard([_card_id], function(err, result){
       if (err){
-        console.log(err);
+        console.log('y');
+        self.logger.error('[issueCard] '+ err);
         return;
       }
       else {
         self.db.insertLog([_card_id, 'CARD ISSUED'], function(err, result){
           if (err){
-            console.log(err);
+            self.logger.error('[issueCard] '+ err);
             return;
           }
           else {
             // Return card id
+            self.logger.info('Issued card '+_card_id);
             callback(_card_id);
           }
         });
@@ -96,22 +98,24 @@ CognicityGrasp.prototype = {
   checkCardStatus: function(card_id, callback){
 
      var self = this;
-     console.log(card_id);
-     self.db.checkCardStatus([card_id], function(err, result){
-       if (err) {
-         console.log(err);
-         return;
-       }
-       else {
-         if (result[0]){
-             callback(result[0]);
-           }
-         else {
-            callback({result:'invalid'});
-          }
-        }
-     });
-  }
+     if (shortid.isValid(card_id)){
+       self.db.checkCardStatus([card_id], function(err, result){
+         if (err) {
+           self.logger.error('[checkCardStatus] '+ err);
+           return;
+         }
+         else if (result[0]){
+           self.logger.info('Checked card '+card_id+' - valid');
+           callback(result[0]);
+         }
+       });
+     }
+     else {
+       self.logger.info('Checked card '+card_id+' - invalid');
+       callback({received : 'invalid'});
+     }
+   }
+
 };
 
 module.exports = CognicityGrasp;
