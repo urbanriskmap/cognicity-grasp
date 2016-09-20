@@ -17,11 +17,11 @@ var grasp = new CognicityGrasp(
 describe( 'CognicityGrasp', function(){
 
   // Test suite for issueCard function
-  describe( 'issueCard', function(){
+  describe( 'Succesful issueCard', function(){
 
     // Mock functions
-    var oldDBIssueCard, oldDBInsertLog, oldGenerateID;
-    var cardDBvalue, logDBvalue = 0;
+    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerInfo;
+    var cardDBvalue, logDBvalue, loggerValue = 0;
     before (function(){
         oldDBIssueCard = grasp.db.issueCard;
         grasp.db.issueCard = function(param_dict, callback){
@@ -34,7 +34,13 @@ describe( 'CognicityGrasp', function(){
           callback(0, 'log')
         };
         oldGenerateID = grasp.issueCard._generate_id;
-        grasp._generate_id = function(){return 'ABC1234'}
+        grasp._generate_id = function(){return 'ABC1234'};
+
+        oldLoggerInfo = grasp.logger.info;
+        loggerValue = 0;
+        grasp.logger.info = function(message){
+          loggerValue = message;
+        }
     });
 
     // Test
@@ -62,26 +68,94 @@ describe( 'CognicityGrasp', function(){
       grasp.db.issueCard = oldDBIssueCard;
       grasp.db.insertLog = oldDBInsertLog;
       grasp._generate_id = oldGenerateID;
+      grasp.logger.info = oldLoggerInfo;
     });
 
     // test logger values if data
-    /*
-    before( function(){
-      oldGraspDBissueCard = grasp.db.issueCard;
-      // Mock database functions
-      grasp.db.issueCard = function(){
-        var err = 'test error'
-        return err;
-      };
+  });
+
+  // Test suite for issueCard function
+  describe( 'Catch issueCard database errors', function(){
+
+    // Mock functions
+    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerError;
+    var cardDBvalue, logDBvalue, loggerValue = 0;
+    before (function(){
+        oldDBIssueCard = grasp.db.issueCard;
+        grasp.db.issueCard = function(param_dict, callback){
+          cardDBvalue = param_dict[0];
+          callback(1, 'data');
+        };
+        oldDBInsertLog = grasp.db.insertLog;
+        grasp.db.insertLog = function(param_dict, callback){
+          logDBvalue = param_dict
+          callback(0, 'log')
+        };
+        oldGenerateID = grasp.issueCard._generate_id;
+        grasp._generate_id = function(){return 'ABC1234'};
+
+        oldLoggerError = grasp.logger.error;
+        loggerValue = 0;
+        grasp.logger.error = function(message){
+          loggerValue = message;
+        }
     });
-    it ('Catches issueCard query error', function(){
+
+    // Test
+    it ('Returns correct card id ', function(){
       grasp.issueCard(function(result){
-        test.value(result).is('ABC123');
+        test.value(loggerValue).is('[issueCard] 1');
       });
     });
-    after (function(){
-      grasp.db.issueCard = oldGraspDBissueCard;
-    });*/
 
+    // Retore mocked items
+    after (function(){
+      grasp.db.issueCard = oldDBIssueCard;
+      grasp.db.insertLog = oldDBInsertLog;
+      grasp._generate_id = oldGenerateID;
+      grasp.logger.error = oldLoggerError;
+    });
+  });
+  // Test suite for issueCard function
+  describe( 'Catch insertLog database errors', function(){
+
+    // Mock functions
+    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerError;
+    var cardDBvalue, logDBvalue, loggerValue = 0;
+    before (function(){
+        oldDBIssueCard = grasp.db.issueCard;
+        grasp.db.issueCard = function(param_dict, callback){
+          cardDBvalue = param_dict[0];
+          callback(0, 'data');
+        };
+        oldDBInsertLog = grasp.db.insertLog;
+        grasp.db.insertLog = function(param_dict, callback){
+          logDBvalue = param_dict
+          callback(2, 'log')
+        };
+        oldGenerateID = grasp.issueCard._generate_id;
+        grasp._generate_id = function(){return 'ABC1234'};
+
+        oldLoggerError = grasp.logger.error;
+        loggerValue = 0;
+        grasp.logger.error = function(message){
+          loggerValue = message;
+        }
+    });
+
+    // Test
+    it ('Returns correct card id ', function(){
+      grasp.issueCard(function(result){
+        test.value(loggerValue).is('[issueCard] 2');
+      });
+    });
+
+    // Retore mocked items
+    after (function(){
+      grasp.db.issueCard = oldDBIssueCard;
+      grasp.db.insertLog = oldDBInsertLog;
+      grasp._generate_id = oldGenerateID;
+      grasp.logger.error = oldLoggerError;
+    });
   });
 });

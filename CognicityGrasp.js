@@ -71,7 +71,6 @@ CognicityGrasp.prototype = {
     // Update database
     self.db.issueCard([_card_id], function(err, result){
       if (err){
-        console.log('y');
         self.logger.error('[issueCard] '+ err);
         return;
       }
