@@ -1,8 +1,9 @@
 'use strict';
 // Node modules
 var test = require('unit.js');
-// Test moduke
+// Test modules
 var ReportCard = require('../ReportCard');
+var Bot = require('../Bot');
 
 // Create grasp object with empty objects
 // Mock objects as required for each test suite
@@ -12,7 +13,13 @@ var report_card = new ReportCard(
                   {}
 );
 
-// Test harness for CognicityGrasp object
+var bot = new Bot(
+                {},
+                {},
+                {}
+);
+
+// Test harness for ReportCard object
 describe( 'ReportCard', function(){
 
   // Test suite for issueCard function
@@ -155,6 +162,36 @@ describe( 'ReportCard', function(){
       report_card.db.insertLog = oldDBInsertLog;
       report_card._generate_id = oldGenerateID;
       report_card.logger.error = oldLoggerError;
+    });
+  });
+});
+
+// Test harness for CognicityGrasp object
+describe( 'Bot', function(){
+  // Test suite for issueCard function
+  describe( 'Succesfully parse input', function(){
+    var oldissueCard = bot.report_card.issueCard;
+    var oldLoggerInfo = bot.logger.info;
+    var report_card_return_value = 1;
+    before (function(){
+      bot.report_card.issueCard = function(callback){
+        report_card_return_value = 0;
+      };
+      bot.logger.info = function(message){
+        return 0;
+      }
+    });
+    it ('No card requested if keyword not found', function(){
+      bot.parse('spam', function(){});
+      test.value(report_card_return_value).is(1)
+    });
+    it ( 'Detects keyword, and requests card', function(){
+      bot.parse('report', function(){});
+      test.value(report_card_return_value).is(0);
+    });
+    after (function(){
+      bot.report_card.issueCard = oldissueCard;
+      bot.logger.info = oldLoggerInfo;
     });
   });
 });

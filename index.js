@@ -76,7 +76,8 @@ var Bot = require('./Bot');
 var report_card = new ReportCard(db, logger, exitWithStatus);
 var bot = new Bot(config, report_card, logger, exitWithStatus);
 //report_cardissueCard(function(result){console.log(result);});
-bot.parse('Report', function(result){console.log(result);});
+bot.parse('spam', function(result){console.log(result);});
+bot.parse('report', function(result){console.log(result);});
 
 // Routes
 /*
