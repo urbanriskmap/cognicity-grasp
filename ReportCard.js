@@ -6,31 +6,22 @@ var shortid = require('shortid');
 /**
  * A ReportCard object manages requests and receiepts of user reports
  * @constructor
- * @param {object} config Configuration object
  * @param {object} db Configured instance of database connection from Massive module
  * @param {object} logger Configured instance of logger object from Winston module
  * @param {function} exitWithStatus Function to exit the process with the status code
  */
 var ReportCard = function(
-  config,
   db,
   logger,
   exitWithStatus
 ){
 
-  this.config = config;
   this.db = db;
   this.logger = logger;
   this.exitWithStatus = exitWithStatus;
 };
 
 ReportCard.prototype = {
-
-  /**
-   * Configuration object
-   * @type {config}
-   */
-   config: null,
 
   /**
    * Configured instance of pg object from pg module

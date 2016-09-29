@@ -10,7 +10,7 @@
 
 // Node dependencies
 var Massive = require('massive'); // database
-var express = require('express'); // web
+//var express = require('express'); // web
 var logger = require('winston');  // logging
 var fs = require('fs');           // file system
 var path = require('path');       // directory paths
@@ -67,16 +67,16 @@ logger.info("Application starting...");
 var db = Massive.connectSync({db: "cognicity_grasp"});
 
 // Init express app
-var app = express();
+//var app = express();
 
 // Grasp object
 var ReportCard = require('./ReportCard');
 var Bot = require('./Bot');
 
-var report_card = new ReportCard(config, db, logger, exitWithStatus);
+var report_card = new ReportCard(db, logger, exitWithStatus);
 var bot = new Bot(config, report_card, logger, exitWithStatus);
 //report_cardissueCard(function(result){console.log(result);});
-bot.parse('Report', function(result){console.log(result)});
+bot.parse('Report', function(result){console.log(result);});
 
 // Routes
 /*

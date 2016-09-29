@@ -65,7 +65,7 @@ Bot.prototype = {
           self.logger.info('Bot could not detect a keyword');
           break;
         default:
-          self.logger.info('Bot requesting issue of card')
+          self.logger.info('Bot requesting issue of card');
           self.report_card.issueCard(callback);
           // do we need a return here?
       }
