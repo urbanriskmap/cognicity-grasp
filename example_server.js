@@ -1,18 +1,14 @@
 'use strict';
 
-// index.js - cognicity-grasp module (Geosocial Rapid Assessment Platform)
+// Example of card validation by HTTP server
 
-/**
-  * @file NodeJS app for report collection and REST service
-  * @copyright (c) Tomas Holderness & Etienne Turpin
-  * @license Released under GNU GPLv3 License (see LICENSE)
-  */
-
-// Node dependencies
-var Massive = require('massive'); // database
+var express = require('express'); // web
+var Massive = require('massive'); // db
 var logger = require('winston');  // logging
 var fs = require('fs');           // file system
 var path = require('path');       // directory paths
+// CogniCity ReportCard module
+var ReportCard = require('./ReportCard');
 
 // Config object
 var config = {
@@ -62,15 +58,33 @@ function exitWithStatus(exitStatus) {
 
 logger.info("Application starting...");
 
+var app = express();
+
 // Connect to database
 var db = Massive.connectSync({db: "cognicity_grasp"});
 
-// Grasp objects
-var ReportCard = require('./ReportCard');
-var Bot = require('./Bot');
-
+// Instance ReportCard
 var report_card = new ReportCard(db, logger, exitWithStatus);
-var bot = new Bot(config, report_card, logger, exitWithStatus);
-//report_cardissueCard(function(result){console.log(result);});
-bot.parse('spam', function(result){console.log(result);});
-bot.parse('report', function(result){console.log(result);});
+
+// Routes
+
+app.get('/report/:card_id', function(req, res, next){
+    report_card.checkCardStatus(req.params.card_id, function(result){
+    if ( result.received === false){
+      res.send('Success - proceed with report');
+      logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);
+    }
+    else if (result.received === true){
+      res.send('Error - report already received');
+      logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- already received');
+    }
+    else {
+      res.send('Error - report card id invalid');
+      logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- invalid');
+    }
+  });
+});
+
+app.listen(3000, function(){
+  logger.info('Express listening');
+});
