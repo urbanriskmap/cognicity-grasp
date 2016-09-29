@@ -59,8 +59,7 @@ Bot.prototype = {
     parse: function(words, callback){
 
       var self = this;
-
-      switch (words.match(/\breport\b/i)){
+      switch (words.match(self.config.regex)){
         // ***To do*** list of words to match
         case  null:
           self.logger.info('Bot could not detect a keyword');

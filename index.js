@@ -22,6 +22,9 @@ var config = {
     maxFileSize : 1024 * 1024 * 100,
     maxFiles : 10,
     level : 'debug'
+  },
+  bot : {
+    regex: /\breport|alerts\b/i
   }
 };
 
@@ -70,7 +73,7 @@ var ReportCard = require('./ReportCard');
 var Bot = require('./Bot');
 
 var report_card = new ReportCard(db, logger, exitWithStatus);
-var bot = new Bot(config, report_card, logger, exitWithStatus);
-//report_cardissueCard(function(result){console.log(result);});
+var bot = new Bot(config.bot, report_card, logger, exitWithStatus);
+
 bot.parse('spam', function(result){console.log(result);});
 bot.parse('report', function(result){console.log(result);});

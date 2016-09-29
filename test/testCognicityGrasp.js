@@ -14,6 +14,9 @@ var report_card = new ReportCard(
 );
 
 var bot = new Bot(
+                {
+                  regex: /\breport|alerts\b/i
+                },
                 {},
                 {},
                 {}
