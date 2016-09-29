@@ -9,7 +9,6 @@ var Bot = require('../Bot');
 // Mock objects as required for each test suite
 var report_card = new ReportCard(
                   {},
-                  {},
                   {}
 );
 
@@ -17,7 +16,6 @@ var bot = new Bot(
                 {
                   regex: /\breport|alerts\b/i
                 },
-                {},
                 {},
                 {}
 );

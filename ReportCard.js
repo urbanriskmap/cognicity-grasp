@@ -8,17 +8,14 @@ var shortid = require('shortid');
  * @constructor
  * @param {object} db Configured instance of database connection from Massive module
  * @param {object} logger Configured instance of logger object from Winston module
- * @param {function} exitWithStatus Function to exit the process with the status code
  */
 var ReportCard = function(
   db,
-  logger,
-  exitWithStatus
+  logger
 ){
 
   this.db = db;
   this.logger = logger;
-  this.exitWithStatus = exitWithStatus;
 };
 
 ReportCard.prototype = {
@@ -34,12 +31,6 @@ ReportCard.prototype = {
   * @type {object}
   */
   logger: null,
-
- /**
-  * Function to exit the process with the supplied status code
-  * @type {function}
-  */
-  exitWithStatus: null,
 
   /**
    * Private method to generate card id (nested function allows testing)
