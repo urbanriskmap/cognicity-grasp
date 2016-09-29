@@ -28,8 +28,6 @@ var Bot = function(
 };
 
 
-
-
 Bot.prototype = {
 
   /**
@@ -56,20 +54,43 @@ Bot.prototype = {
     */
     exitWithStatus: null,
 
-    parse: function(words, callback){
+    /**
 
+    */
+
+    cardAddress: function(card_id, callback){
+      var self = this;
+      if (!self.config.card_url_prefix){
+        self.logger.error('[cardAddress] No card url prefix specified');
+        return;
+      }
+      else {
+        callback(self.config.card_url_prefix+'/'+card_id);
+      }
+    },
+
+    /**
+     * Function to parse user input and provide response based on keyword detection
+     * @param {string} words Text string containing user input
+     * @param {function} callback Callback function for Bot response
+     */
+    parse: function(words, callback){
       var self = this;
       switch (words.match(self.config.regex)){
-        // ***To do*** list of words to match
         case  null:
           self.logger.info('Bot could not detect a keyword');
           break;
         default:
           self.logger.info('Bot requesting issue of card');
-          self.report_card.issueCard(callback);
+          // These callbacks could be neater
+          self.report_card.issueCard(function(card_id){
+            self.cardAddress(card_id, function(card_address){
+              callback(card_address);
+            });
+          });
           break;
+        }
       }
-    }
 };
 
 module.exports = Bot;

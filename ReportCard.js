@@ -50,7 +50,7 @@ ReportCard.prototype = {
 
   /**
    * Create card unique id, register in database, and return value via callback
-   * @param {function} success Callback function to return card id
+   * @param {function} callback Callback function to return card id
    */
   issueCard: function(callback){
 

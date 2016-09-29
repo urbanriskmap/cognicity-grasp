@@ -24,8 +24,9 @@ var config = {
     level : 'debug'
   },
   bot : {
-    regex: /\breport|alerts\b/i
-  }
+    regex: /\breport|alerts\b/i,
+    card_url_prefix: 'https://petabencana.id/jakarta/banjir/grasp'
+    }
 };
 
 // Logging configuration
