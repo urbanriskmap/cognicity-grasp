@@ -4,14 +4,14 @@
 var shortid = require('shortid');
 
 /**
- * A CognicityGrasp object manages requests and receiepts of user reports
+ * A ReportCard object manages requests and receiepts of user reports
  * @constructor
  * @param {object} config Configuration object
  * @param {object} db Configured instance of database connection from Massive module
  * @param {object} logger Configured instance of logger object from Winston module
  * @param {function} exitWithStatus Function to exit the process with the status code
  */
-var CognicityGrasp = function(
+var ReportCard = function(
   config,
   db,
   logger,
@@ -24,7 +24,7 @@ var CognicityGrasp = function(
   this.exitWithStatus = exitWithStatus;
 };
 
-CognicityGrasp.prototype = {
+ReportCard.prototype = {
 
   /**
    * Configuration object
@@ -117,4 +117,4 @@ CognicityGrasp.prototype = {
 
 };
 
-module.exports = CognicityGrasp;
+module.exports = ReportCard;

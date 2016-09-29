@@ -70,15 +70,18 @@ var db = Massive.connectSync({db: "cognicity_grasp"});
 var app = express();
 
 // Grasp object
-var CognicityGrasp = require('./CognicityGrasp');
+var ReportCard = require('./ReportCard');
+var Bot = require('./Bot');
 
-var grasp = new CognicityGrasp(config, db, logger, exitWithStatus);
-
-grasp.issueCard(function(result){console.log(result);});
+var report_card = new ReportCard(config, db, logger, exitWithStatus);
+var bot = new Bot(config, report_card, logger, exitWithStatus);
+//report_cardissueCard(function(result){console.log(result);});
+bot.parse('Report', function(result){console.log(result)});
 
 // Routes
+/*
 app.get('/report/:card_id', function(req, res, next){
-    grasp.checkCardStatus(req.params.card_id, function(result){
+    report_card.checkCardStatus(req.params.card_id, function(result){
     if ( result.received === false){
       res.send('Success - proceed with report');
       logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);
@@ -96,4 +99,4 @@ app.get('/report/:card_id', function(req, res, next){
 
 app.listen(3000, function(){
   logger.info('Express listening');
-});
+});*/
