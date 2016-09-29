@@ -30,7 +30,7 @@ describe( 'ReportCard', function(){
 
     // Mock functions
     var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerInfo;
-    var cardDBvalue, logDBvalue, loggerValue = 0;
+    var cardDBvalue, logDBvalue, loggerValue;
     before (function(){
         oldDBIssueCard = report_card.db.issueCard;
         report_card.db.issueCard = function(param_dict, callback){
@@ -46,7 +46,6 @@ describe( 'ReportCard', function(){
         report_card._generate_id = function(){return 'ABC1234'};
 
         oldLoggerInfo = report_card.logger.info;
-        loggerValue = 0;
         report_card.logger.info = function(message){
           loggerValue = message;
         }
@@ -88,7 +87,7 @@ describe( 'ReportCard', function(){
 
     // Mock functions
     var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerError;
-    var cardDBvalue, logDBvalue, loggerValue = 0;
+    var cardDBvalue, logDBvalue, loggerValue;
     before (function(){
         oldDBIssueCard = report_card.db.issueCard;
         report_card.db.issueCard = function(param_dict, callback){
@@ -104,7 +103,6 @@ describe( 'ReportCard', function(){
         report_card._generate_id = function(){return 'ABC1234'};
 
         oldLoggerError = report_card.logger.error;
-        loggerValue = 0;
         report_card.logger.error = function(message){
           loggerValue = message;
         }
@@ -130,7 +128,7 @@ describe( 'ReportCard', function(){
 
     // Mock functions
     var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerError;
-    var cardDBvalue, logDBvalue, loggerValue = 0;
+    var cardDBvalue, logDBvalue, loggerValue;
     before (function(){
         oldDBIssueCard = report_card.db.issueCard;
         report_card.db.issueCard = function(param_dict, callback){
@@ -146,7 +144,6 @@ describe( 'ReportCard', function(){
         report_card._generate_id = function(){return 'ABC1234'};
 
         oldLoggerError = report_card.logger.error;
-        loggerValue = 0;
         report_card.logger.error = function(message){
           loggerValue = message;
         }
@@ -175,22 +172,24 @@ describe( 'Bot', function(){
   describe( 'Succesfully parse input', function(){
     var oldissueCard = bot.report_card.issueCard;
     var oldLoggerInfo = bot.logger.info;
-    var report_card_return_value = 1;
+    var report_card_return_value;
+    var loggerValue;
     before (function(){
       bot.report_card.issueCard = function(callback){
         report_card_return_value = 0;
       };
       bot.logger.info = function(message){
-        return 0;
+        loggerValue = message;
       }
     });
     it ('No card requested if keyword not found', function(){
       bot.parse('spam', function(){});
-      test.value(report_card_return_value).is(1)
+      test.value(loggerValue).is('Bot could not detect a keyword');
     });
     it ( 'Detects keyword, and requests card', function(){
       bot.parse('report', function(){});
       test.value(report_card_return_value).is(0);
+      test.value(loggerValue).is('Bot requesting issue of card');
     });
     after (function(){
       bot.report_card.issueCard = oldissueCard;
