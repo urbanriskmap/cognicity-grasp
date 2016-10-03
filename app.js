@@ -71,13 +71,17 @@ var rl = readline.createInterface({
 });
 
 var input = function(){
-  rl.question('Input>', (answer)=>{
+  rl.question('Input>', function(answer){
       bot.parse(answer, function(result){
         console.log(result);
       });
       input();
   });
-}
+	rl.on('close', function(){
+		exitWithStatus(0);
+	});
+};
 input();
+
 //bot.parse('spam', function(result){console.log(result);});
 //bot.parse('report', function(result){console.log(result);});
