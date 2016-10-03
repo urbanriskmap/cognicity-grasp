@@ -73,8 +73,8 @@ var db = Massive.connectSync({db: "cognicity_grasp"});
 var ReportCard = require('./ReportCard');
 var Bot = require('./Bot');
 
-var report_card = new ReportCard(db, logger, exitWithStatus);
-var bot = new Bot(config.bot, report_card, logger, exitWithStatus);
+var report_card = new ReportCard(db, logger);
+var bot = new Bot(config.bot, report_card, logger);
 
 bot.parse('spam', function(result){console.log(result);});
 bot.parse('report', function(result){console.log(result);});
