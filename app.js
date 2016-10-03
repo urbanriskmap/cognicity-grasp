@@ -14,20 +14,9 @@ var logger = require('winston');  // logging
 var fs = require('fs');           // file system
 var path = require('path');       // directory paths
 
-// Config object
-var config = {
-  logger : {
-    logDirectory : null,
-    filename : 'cognicity-grasp',
-    maxFileSize : 1024 * 1024 * 100,
-    maxFiles : 10,
-    level : 'debug'
-  },
-  bot : {
-    regex: /\breport|alerts\b/i,
-    card_url_prefix: 'https://petabencana.id/jakarta/banjir/grasp'
-    }
-};
+var readline = require('readline');
+
+var config = require('./sample-grasp-config');
 
 // Logging configuration
 var logPath = ( config.logger.logDirectory ? config.logger.logDirectory : __dirname );
@@ -76,5 +65,19 @@ var Bot = require('./Bot');
 var report_card = new ReportCard(db, logger);
 var bot = new Bot(config.bot, report_card, logger);
 
-bot.parse('spam', function(result){console.log(result);});
-bot.parse('report', function(result){console.log(result);});
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+rl.setPrompt('Input> ');
+rl.prompt();
+rl.on('line', function(line){
+  bot.parse(line, function(result){console.log(result);});
+  rl.prompt();
+}).on('close', function(){
+  process.exit(0);
+});
+
+//bot.parse('spam', function(result){console.log(result);});
+//bot.parse('report', function(result){console.log(result);});

@@ -31,6 +31,7 @@
   "devDependencies": {
     "jshint": "^2.9.3",
     "mocha": "^3.0.2",
+    "readline": "^1.3.0",
     "unit.js": "^2.0.0"
   }
 }
