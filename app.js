@@ -76,7 +76,7 @@ rl.on('line', function(line){
   bot.parse(line, function(result){console.log(result);});
   rl.prompt();
 }).on('close', function(){
-  process.exit(0);
+  exitWithStatus(0);
 });
 
 //bot.parse('spam', function(result){console.log(result);});
