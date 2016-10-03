@@ -70,14 +70,14 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-rl.setPrompt('Input> ');
-rl.prompt();
-rl.on('line', function(line){
-  bot.parse(line, function(result){console.log(result);});
-  rl.prompt();
-}).on('close', function(){
-  exitWithStatus(0);
-});
-
+var input = function(){
+  rl.question('Input>', (answer)=>{
+      bot.parse(answer, function(result){
+        console.log(result);
+      });
+      input();
+  });
+}
+input();
 //bot.parse('spam', function(result){console.log(result);});
 //bot.parse('report', function(result){console.log(result);});
