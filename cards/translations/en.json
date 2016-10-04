@@ -1,0 +1,10 @@
+{
+  "card": {
+    "locale": "en",
+    "title": "GRASP Report Card",
+    "content": {
+      "header": "This is a GRASP card",
+      "sub_header": "Content"
+    }
+  }
+}

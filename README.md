@@ -75,6 +75,10 @@ bot.parse(user_input, callback(err, response));
 ### Bot.js Configuration
 See `sample-grasp-config.js`
 
+## Schema
+***TO DO***
+-> Move schema to /db?
+
 ## Development
 
 ### Unit tests
@@ -82,3 +86,7 @@ See `sample-grasp-config.js`
 npm install --dev
 npm test
 ```
+
+### Cards
+Report card web elements are in the `public/` folder.
+In the future, we'll use handlebars templates for multi-language support (see `cards/`).

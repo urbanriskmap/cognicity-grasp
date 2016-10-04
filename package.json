@@ -24,6 +24,7 @@
   "homepage": "https://github.com/urbanriskmap/cognicity-grasp#readme",
   "dependencies": {
     "express": "^4.14.0",
+    "handlebars": "^4.0.5",
     "massive": "^2.5.0",
     "shortid": "^2.2.6",
     "winston": "^2.2.0"

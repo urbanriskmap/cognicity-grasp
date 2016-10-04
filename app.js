@@ -67,6 +67,7 @@ var bot = new Bot(config.bot, report_card, logger);
 
 // Configure example server user express
 var app = express();
+app.use("/css", express.static(__dirname + '/public/css'));
 require('./api')(app, report_card, logger);
 
 // Listen for report card requests
