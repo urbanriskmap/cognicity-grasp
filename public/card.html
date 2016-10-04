@@ -20,7 +20,25 @@
     <div id="card">
       <h1>Flood Report Card</h1>
       <p>Submit your flood report here</p>
-      <button>Submit</button>
+      <button id="submit">Submit</button>
     </div>
+    <!--JavaScript to submit form-->
+    <script type="text/javascript">
+    //get a reference to the element
+    var cardBtn = document.getElementById('submit');
+
+    //add event listener to push card data back to server
+    cardBtn.addEventListener('click', function(event) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('PUT', document.URL);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+          if (xhr.status === 200) {
+              alert(xhr.responseText);
+          }
+      };
+      xhr.send(JSON.stringify({flood_state: 1}));
+    });
+  </script>
   </body>
 </html>

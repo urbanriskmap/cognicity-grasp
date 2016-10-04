@@ -12,6 +12,7 @@ var logger = require('winston');  // logging
 var fs = require('fs');           // file system
 var path = require('path');       // directory paths
 var express = require('express'); // web
+var bodyParser = require('body-parser'); // web body parse
 
 // Grasp objects
 var ReportCard = require('./ReportCard');
@@ -67,13 +68,15 @@ var bot = new Bot(config.bot, report_card, logger);
 
 // Configure example server user express
 var app = express();
+app.use(bodyParser.json());
 app.use("/css", express.static(__dirname + '/public/css'));
-require('./api')(app, report_card, logger);
-
 // Listen for report card requests
 app.listen(3000, function(){
     logger.info('Express listening');
 });
+// API endpoints
+require('./api')(app, report_card, logger);
+
 
 // Parse some user input, and return response
 bot.parse('Please send me a report card', function(result){
