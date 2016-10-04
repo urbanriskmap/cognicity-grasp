@@ -82,5 +82,3 @@ See `sample-grasp-config.js`
 npm install --dev
 npm test
 ```
-Dev.
-Config.
