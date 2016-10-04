@@ -9,7 +9,7 @@ var config = {
   },
   bot : {
     regex: /\breport|alerts\b/i,
-    card_url_prefix: 'https://petabencana.id/jakarta/banjir/grasp'
+    card_url_prefix: 'http://localhost:3000/report'
     }
 };
 

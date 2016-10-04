@@ -32,14 +32,27 @@ CogniCity GRASP
 ## App.js
 `App.js` is the reference implementation of CogniCity Grasp. It emulates user input from a reports module to generate a report card using `Bot.js` and `ReportCard.js`, and emulates server response for submission of the card by the user.
 
-Dependencies are tracked in `package.json`.
-
-**Run**
+### Dependencies
+Stored in `package.json`, use:
 ```sh
-$ node app.js
+npm install
 ```
 
+### Run App.js
+```sh
+$ node app.js
+info: Application starting...
+info: Bot requesting issue of card
+info: Express listening
+info: Issued card B1eYYW-R
+Hi User, here is the link to your report card: http://localhost:3000/report/B1eYYW-R
 
+$ curl http://localhost:3000/report/B1eYYW-R
+Success - proceed with report
+
+$ curl http://localhost:3000/report/ZZZ
+Error - report card id invalid
+```
 
 ## ReportCard.js & Bot.js
 `ReportCard.js` provides simple module for the creation, storage and validation of unique report card links.
@@ -58,3 +71,16 @@ var bot = new Bot(config, report_card, winston_logger_object);
 
 bot.parse(user_input, callback(err, response));
 ```
+
+### Bot.js Configuration
+See `sample-grasp-config.js`
+
+## Development
+
+### Unit tests
+```sh
+npm install --dev
+npm test
+```
+Dev.
+Config.

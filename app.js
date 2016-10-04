@@ -1,9 +1,7 @@
 'use strict';
 
-// index.js - cognicity-grasp module (Geosocial Rapid Assessment Platform)
-
 /**
-  * @file NodeJS app for report collection and REST service
+  * @file NodeJS App - Reference implementation of CogniCity grasp
   * @copyright (c) Tomas Holderness & Etienne Turpin
   * @license Released under GNU GPLv3 License (see LICENSE)
   */
@@ -13,9 +11,13 @@ var Massive = require('massive'); // database
 var logger = require('winston');  // logging
 var fs = require('fs');           // file system
 var path = require('path');       // directory paths
+var express = require('express'); // web
 
-var readline = require('readline');
+// Grasp objects
+var ReportCard = require('./ReportCard');
+var Bot = require('./Bot');
 
+// Local config
 var config = require('./sample-grasp-config');
 
 // Logging configuration
@@ -53,35 +55,31 @@ function exitWithStatus(exitStatus) {
 	}, 500 );
 }
 
+// Start
 logger.info("Application starting...");
 
 // Connect to database
 var db = Massive.connectSync({db: "cognicity_grasp"});
 
-// Grasp objects
-var ReportCard = require('./ReportCard');
-var Bot = require('./Bot');
-
+// GRASP objects
 var report_card = new ReportCard(db, logger);
 var bot = new Bot(config.bot, report_card, logger);
 
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+// Configure example server user express
+var app = express();
+require('./api')(app, report_card, logger);
+
+// Listen for report card requests
+app.listen(3000, function(){
+    logger.info('Express listening');
 });
 
-var input = function(){
-  rl.question('Input>', function(answer){
-      bot.parse(answer, function(result){
-        console.log(result);
-      });
-      input();
-  });
-	rl.on('close', function(){
-		exitWithStatus(0);
-	});
-};
-input();
+// Parse some user input, and return response
+bot.parse('Please send me a report card', function(result){
+	console.log('Hi User, here is the link to your report card: '+result);
+});
 
-//bot.parse('spam', function(result){console.log(result);});
-//bot.parse('report', function(result){console.log(result);});
+// Graceful exit
+process.on('SIGINT', function(){
+	exitWithStatus(0);
+});
