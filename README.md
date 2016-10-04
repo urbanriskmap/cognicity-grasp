@@ -1,93 +1,60 @@
-cognicity-grasp
-===============
-
-## Geosocial Rapid Assessment Platform for CogniCity
-
 [![Build Status](https://travis-ci.org/urbanriskmap/cognicity-grasp.svg?branch=master)](https://travis-ci.org/urbanriskmap/cognicity-grasp)
 
-Card -> Outbound
+CogniCity GRASP
+=====
+##### Geosocial Rapid Assessment Platform
 
-Report <- Inbound
+## Introduction
+[cognicity-grasp](https://github.com/urbanriskmap/ccognicity-grasp) is an extension to the CogniCity platform that adds support to collect disaster reports from residents using web-technologies. Users request a *report card* which is delivered in the form of a unique link pointing to a  [cognicity-server]() instance. The report card link is delivered by a simple conversational 'bot'. The bot can be included in [cognicity-reports]() so that report cards can be delivered to users via social messaging or third-party application.
 
-Notes
+### Key Files
+* `Bot.js` - GRASP module for user communication
+* `ReportCard.js` - GRASP module to create unique card link
+* `App.js` - Reference implementation
+  * `sample-grasp-config.js` - Sample config for reference implementation
+* `public/` - Folder containing web elements for card design
 
-- micro-service AI platform to collect reports of disaster reports from residents
+### GRASP Process
+1. **User** input (e.g. via social messaging)
+2. `Bot.js` scans **User** input for keyword "report"
+3. `Bot.js` requests a report card from `ReportCard.js`
+4. `ReportCard.js` creates unique card link, writes this to CogniCity database, and passess to `Bot.js`
+5. `Bot.js` replies to **User** with unique card link
+6. **User** opens link, requesting card resources from an instance of CogniCity server
+7. Server uses local instance of `ReportCard.js` to validate unique card link against database
+  - check card exists
+  - check card not completed already
+8. Server responds to **User** with card resources
+9. **User** completes card, and sends response to server
+10. Server adds report card to map and responds to **User** with unique report link
+11. On update to reports table in CogniCity database, `Bot.js` responds to **User** thanking them, including unique report link for map
 
-- respond to user input via medium/network
+## App.js
+`App.js` is the reference implementation of CogniCity Grasp. It emulates user input from a reports module to generate a report card using `Bot.js` and `ReportCard.js`, and emulates server response for submission of the card by the user.
 
-- access user contact details from database
+Dependencies are tracked in `package.json`.
 
-- send card with unique URL via medium
-  - create expected hash-url part
+**Run**
+```sh
+$ node app.js
+```
 
-- listen for response via URL
 
-- support upload of media
 
-- send reply of thanks via medium
+## ReportCard.js & Bot.js
+`ReportCard.js` provides simple module for the creation, storage and validation of unique report card links.
 
-- log all activity in adjacent log table
+`Bot.js` provides human-API endpoint to CogniCity Reports via keywords. Current keywords:
+* "reports" (case insensitive).
 
-### Message Mediums
-- Twitter (submodules?) -> based on cognicity-reports
-- WhatsApp (submodules?)
+`Bot.js` requires an instance of `ReportCard.js` to issue report cards.
 
-Mediums configured via config file to specify API for each, mapping networks against users.
+```js
+var ReportCard = require('ReportCard');
+var Bot = require('Bot');
 
-### Internal CogniCity modules
+var report_card = new ReportCard(massive_database_object, winston_logger_object);
+var bot = new Bot(config, report_card, winston_logger_object);
 
-### External Dependencies
-https://github.com/dylang/shortid
-
-### GRASP API
-
-issueCard
-- create unique URL grasp.petabencana.id/report/QWE#WSF
-
-generateCardID
-
-checkCardID
-
-sendThanks
-
-logActivity?
-
-saveReport
-
-endpoints/
-
-get.report_card (static HTML)
-if (report_card_id IS IN DATABASE [checkCardID]){
-  response.send(card HTML files)
-}
-else (){
-  response.send('error invalid report card ID')
-}
-put.report_card (receive + respond with thanks)
-
-get.reports?card_id
--> geoJson of reports
--> images linked as URLS
-
-social endpoints/
-- Alerts
-- Report / Flood
-- Subscribe
-- Unsubscribe
-
-# WhatsApp
-- wrappers around send and receive
-- user info not needed, 'just blind endpoint to start with'
-
-# Subscription
-- via GRASP or Alerts?
-
-# Storing image data
-7K row per city.
-8MP camera @ 1.7MB per image
-=56,000MB AKA 56 gigabytes of data
-
-# Future work
--> Geo reminder bot
--> Alerts integration
--> Pebble support
+bot.parse(user_input, callback(err, response));
+```
