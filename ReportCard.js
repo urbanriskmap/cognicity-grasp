@@ -77,7 +77,6 @@ ReportCard.prototype = {
    * @param {card_id} string Card id
    */
   checkCardStatus: function(card_id, callback){
-
      var self = this;
      if (shortid.isValid(card_id)){
        self.db.checkCardStatus([card_id], function(err, result){
@@ -89,6 +88,10 @@ ReportCard.prototype = {
            self.logger.info('Checked card '+card_id+' - valid');
            callback(result[0]);
          }
+         else {
+           self.logger.info('Checked card '+card_id+' - invalid');
+           callback({received : 'invalid'});
+         }
        });
      }
      else {
@@ -96,7 +99,6 @@ ReportCard.prototype = {
        callback({received : 'invalid'});
      }
    }
-
 };
 
 module.exports = ReportCard;
