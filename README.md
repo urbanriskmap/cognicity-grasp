@@ -5,7 +5,7 @@ CogniCity GRASP
 ##### Geosocial Rapid Assessment Platform
 
 ## Introduction
-[cognicity-grasp](https://github.com/urbanriskmap/ccognicity-grasp) is an extension to the CogniCity platform that adds support to collect disaster reports from residents using web-technologies. Users request a *report card* which is delivered in the form of a unique link pointing to a  [cognicity-server]() instance. The report card link is delivered by a simple conversational 'bot'. The bot can be included in [cognicity-reports]() so that report cards can be delivered to users via social messaging or third-party application.
+[cognicity-grasp](https://github.com/urbanriskmap/ccognicity-grasp) is an extension to the CogniCity platform that adds support to collect disaster reports from residents using web-technologies. Users request a *report card* which is delivered in the form of a unique one time link pointing to a  [cognicity-server]() instance. The report card link is delivered by a simple conversational 'bot'. The bot can be included in [cognicity-reports]() so that report cards can be delivered to users via social messaging or third-party application.
 
 ### Key Files
 * `Bot.js` - GRASP module for user communication

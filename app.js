@@ -59,8 +59,21 @@ function exitWithStatus(exitStatus) {
 // Start
 logger.info("Application starting...");
 
+// **To Do** Define PG error handlder here + reconnect function
 // Connect to database
-var db = Massive.connectSync({db: "cognicity_grasp"});
+
+function connectDatabase(config){
+	try {
+		var instance = Massive.connectSync(config);
+		return instance;
+	}
+	catch(e){
+		logger.error(e);
+		throw(e);
+	}
+};
+
+var db = connectDatabase(config.database);
 
 // GRASP objects
 var report_card = new ReportCard(db, logger);

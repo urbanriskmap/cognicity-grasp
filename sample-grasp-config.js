@@ -10,7 +10,10 @@ var config = {
   bot : {
     regex: /\breport|alerts\b/i,
     card_url_prefix: 'http://localhost:3000/report'
-    }
+  },
+  database: {
+    db: "cognicity_grasp"
+  }
 };
 
 module.exports = config;
