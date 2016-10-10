@@ -65,7 +65,7 @@ Bot.prototype = {
         return;
       }
       else {
-        callback(self.config.card_url_prefix+'/'+card_id);
+        callback(null, self.config.card_url_prefix+'/'+card_id);
       }
     },
 
@@ -85,10 +85,16 @@ Bot.prototype = {
           break;
         default:
           self.logger.info('Bot requesting issue of card');
-          self.report_card.issueCard(function(card_id){
-            self.cardAddress(card_id, function(card_address){
-              callback(self.dialogue[language].report+card_address);
-            });
+          self.report_card.issueCard(function(err, card_id){
+            if (err){
+              self.logger.error('Bot encoutered error requesting card');
+              return;
+            }
+            else {
+              self.cardAddress(card_id, function(err, card_address){
+                callback(err, self.dialogue[language].report+card_address);
+              });
+            }
           });
           break;
         }

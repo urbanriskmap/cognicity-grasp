@@ -76,18 +76,15 @@ app.listen(3000, function(){
 // API endpoints
 require('./api')(app, report_card, logger);
 
+// Parse some user input, and return response
+/*bot.parse('Please send me a card', 'en', function(result){
+	console.log('Bot> '+result);
+});*/
 
 // Parse some user input, and return response
-bot.parse('Please send me a card', 'en', function(result){
+bot.parse('Please send me a #report', 'en', function(err, result){
 	console.log('Bot> '+result);
 });
-
-// Parse some user input, and return response
-bot.parse('Please send me a #report', 'en', function(result){
-	console.log('Bot> '+result);
-});
-
-
 
 // Graceful exit
 process.on('SIGINT', function(){

@@ -109,16 +109,28 @@ ReportCard.prototype = {
       values: [ _card_id ]
       },
       function(err, result){
-        self.dbQuery(
-          {
-            text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
-            values: [ _card_id, "CARD ISSUED"]
-          },
-          function(err, result){
-            self.logger.info('Issued card '+_card_id);
-            callback(_card_id);
-          }
-        );
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        }
+        else {
+          self.dbQuery(
+            {
+              text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
+              values: [ _card_id, "CARD ISSUED"]
+            },
+            function(err, result){
+              if (err){
+                self.logger.error(err);
+                callback(err, null);
+              }
+              else {
+                self.logger.info('Issued card '+_card_id);
+                callback(err, _card_id);
+              }
+            }
+          );
+        }
       }
     );
   },
@@ -136,20 +148,24 @@ ReportCard.prototype = {
          values : [ card_id ]
         },
         function(err, result){
-          if (result[0].received === false){
+          if (err){
+            self.logger.error(err);
+            callback(err, null);
+          }
+          else if (result[0].received === false){
             self.logger.info('Checked card '+card_id+' - valid');
-            callback(result[0]);
+            callback(err, result[0]);
           }
           else {
             self.logger.info('Checked card '+card_id+' - already completed');
-            callback({received : 'invalid'});
+            callback(err, {received : 'invalid'});
           }
         }
       );
      }
      else {
        self.logger.info('Checked card '+card_id+' - invalid');
-       callback({received : 'invalid'});
+       callback(err, {received : 'invalid'});
      }
    }
 };
