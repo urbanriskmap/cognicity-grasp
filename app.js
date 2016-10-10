@@ -20,6 +20,7 @@ var Bot = require('./Bot');
 
 // Local config
 var config = require('./sample-grasp-config');
+var dialogue = require('./sample-bot-dialogue');
 
 // Logging configuration
 var logPath = ( config.logger.logDirectory ? config.logger.logDirectory : __dirname );
@@ -62,7 +63,7 @@ logger.info("Application starting...");
 
 // GRASP objects
 var report_card = new ReportCard(config, pg, logger);
-var bot = new Bot(config.bot, report_card, logger);
+var bot = new Bot(config.bot, dialogue, report_card, logger);
 
 // Configure example server user express
 var app = express();
@@ -77,8 +78,13 @@ require('./api')(app, report_card, logger);
 
 
 // Parse some user input, and return response
-bot.parse('Please send me a report card', function(result){
-	console.log('Hi User, here is the link to your report card: '+result);
+bot.parse('Please send me a card', 'en', function(result){
+	console.log('Bot> '+result);
+});
+
+// Parse some user input, and return response
+bot.parse('Please send me a #report', 'en', function(result){
+	console.log('Bot> '+result);
 });
 
 
