@@ -24,6 +24,8 @@ CREATE TABLE grasp_whatsapp_users (
 CREATE TABLE grasp_cards (
   pkey bigserial NOT NULL,
   card_id varchar NOT NULL,
+  username varchar NOT NULL,
+  network varchar NOT NULL,
   received boolean,
   CONSTRAINT pkey_grasp_cards PRIMARY KEY (pkey)
 );

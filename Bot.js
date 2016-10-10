@@ -71,21 +71,23 @@ Bot.prototype = {
 
     /**
      * Function to parse user input and provide response based on keyword detection
+     * @param {string} username Unique username e.g. @twitter
+     * @param {string} network User social messaging network e.g. twitter
      * @param {string} words Text string containing user input
-     * @param {string} language Text string containing ISO 639-1 two letter language code
+     * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
      * @param {function} callback Callback function for Bot response
      */
-    parse: function(words, language, callback){
+    parse: function(username, network, words, language, callback){
       var self = this;
       if (language in self.dialogue === false){language = self.config.default_language};
       switch (words.match(self.config.regex)){
         case  null:
           self.logger.info('Bot could not detect a keyword');
-          callback(self.dialogue[language].intro);
+          callback(null, self.dialogue[language].intro);
           break;
         default:
           self.logger.info('Bot requesting issue of card');
-          self.report_card.issueCard(function(err, card_id){
+          self.report_card.issueCard(username, network, function(err, card_id){
             if (err){
               self.logger.error('Bot encoutered error requesting card');
               return;

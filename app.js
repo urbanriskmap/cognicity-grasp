@@ -82,8 +82,8 @@ require('./api')(app, report_card, logger);
 });*/
 
 // Parse some user input, and return response
-bot.parse('Please send me a #report', 'en', function(err, result){
-	console.log('Bot> '+result);
+bot.parse('@nopemartians', config.network.name,'Please send me a tweet', 'en', function(err, result){
+	console.log('Bot> @nopemartians'+result);
 });
 
 // Graceful exit

@@ -94,9 +94,11 @@ ReportCard.prototype = {
 
   /**
    * Create card unique id, register in database, and return value via callback
+   * @param {string} username Unique username requesting card (e.g. @user)
+   * @param {string} network Name of user social messaging network (e.g. Twitter)
    * @param {function} callback Callback function to return card id
    */
-  issueCard: function(callback){
+  issueCard: function(username, network, callback){
 
     var self = this;
 
@@ -105,8 +107,8 @@ ReportCard.prototype = {
 
     self.dbQuery(
       {
-      text: "INSERT INTO grasp_cards (card_id, received) VALUES ($1, FALSE);",
-      values: [ _card_id ]
+      text: "INSERT INTO grasp_cards (card_id, username, network, received) VALUES ($1, $2, $3, FALSE);",
+      values: [ _card_id, username, network ]
       },
       function(err, result){
         if (err){
