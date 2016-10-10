@@ -7,7 +7,7 @@
   */
 
 // Node dependencies
-var Massive = require('massive'); // database
+var pg = require('pg'); // database
 var logger = require('winston');  // logging
 var fs = require('fs');           // file system
 var path = require('path');       // directory paths
@@ -59,41 +59,29 @@ function exitWithStatus(exitStatus) {
 // Start
 logger.info("Application starting...");
 
-// Main function
-function main(db){
-	// GRASP objects
-	var report_card = new ReportCard(db, logger);
-	var bot = new Bot(config.bot, report_card, logger);
 
-	// Configure example server user express
-	var app = express();
-	app.use(bodyParser.json());
-	app.use("/css", express.static(__dirname + '/public/css'));
-	// Listen for report card requests
-	app.listen(3000, function(){
-	    logger.info('Express listening');
-	});
-	// API endpoints
-	require('./api')(app, report_card, logger);
+// GRASP objects
+var report_card = new ReportCard(config, pg, logger);
+var bot = new Bot(config.bot, report_card, logger);
 
-
-	// Parse some user input, and return response
-	bot.parse('Please send me a report card', function(result){
-		console.log('Hi User, here is the link to your report card: '+result);
-	});
-}
-
-// **To Do** Define PG error handlder here + reconnect function
-// Connect to database
-Massive.connect(config.database, function(err, db){
-	if (err){
-		logger.error(err);
-		exitWithStatus(1);
-	}
-	else {
-		main(db);
-	}
+// Configure example server user express
+var app = express();
+app.use(bodyParser.json());
+app.use("/css", express.static(__dirname + '/public/css'));
+// Listen for report card requests
+app.listen(3000, function(){
+    logger.info('Express listening');
 });
+// API endpoints
+require('./api')(app, report_card, logger);
+
+
+// Parse some user input, and return response
+bot.parse('Please send me a report card', function(result){
+	console.log('Hi User, here is the link to your report card: '+result);
+});
+
+
 
 // Graceful exit
 process.on('SIGINT', function(){
