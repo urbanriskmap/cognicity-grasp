@@ -9,6 +9,7 @@ var Bot = require('../Bot');
 // Mock objects as required for each test suite
 var report_card = new ReportCard(
                   {},
+                  {},
                   {}
 );
 

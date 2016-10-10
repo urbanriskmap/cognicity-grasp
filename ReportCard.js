@@ -118,9 +118,9 @@ ReportCard.prototype = {
             self.logger.info('Issued card '+_card_id);
             callback(_card_id);
           }
-        )
+        );
       }
-    )
+    );
   },
 
   /**
@@ -145,7 +145,7 @@ ReportCard.prototype = {
             callback({received : 'invalid'});
           }
         }
-      )
+      );
      }
      else {
        self.logger.info('Checked card '+card_id+' - invalid');
