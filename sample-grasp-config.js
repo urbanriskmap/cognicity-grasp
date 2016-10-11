@@ -7,12 +7,12 @@ var config = {
     maxFiles : 10,
     level : 'debug'
   },
-  network: {
-    name: 'twitter'
-  },
   bot : {
     regex: /\breport|alerts\b/i,
-    card_url_prefix: 'http://localhost:3000/report'
+    card_url_prefix: 'http://localhost:3000/report',
+    network: {
+      name: 'twitter'
+      }
     },
   pg: {
     conString: "postgres://postgres@localhost:5432/cognicity_grasp"

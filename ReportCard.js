@@ -169,6 +169,38 @@ ReportCard.prototype = {
        self.logger.info('Checked card '+card_id+' - invalid');
        callback(err, {received : 'invalid'});
      }
+   },
+
+   watchCards: function(network, callback){
+
+     var self = this;
+
+     self.pg.connect(self.config.pg.conString, function(err, client, done){
+       if (err){
+         self.logger.error("dataQuery: " + JSON.stringify(queryObject) + ", " + err);
+         done();
+         callback( new Error('Database connection error') );
+         return;
+       }
+       // Return the listen notification
+       client.on('notification', function(msg) {
+         try{
+          var notification = JSON.parse(msg.payload);
+          if (notification.grasp_cards.network === network){
+            self.logger.info('Received card submission');
+            callback(null, notification.grasp_cards);
+          }
+         }
+         catch (e){
+           self.logger.error('Error with listen notification from database\n'+e);
+           callback(e);
+           return;
+         }
+       });
+
+       // Initiate the listen query
+       var query = client.query("LISTEN watchers");
+     });
    }
 };
 

@@ -55,7 +55,7 @@ Bot.prototype = {
   logger: null,
 
     /**
-
+    Function to create full one-time link (URL) address for card
     */
 
     cardAddress: function(card_id, callback){
@@ -77,7 +77,7 @@ Bot.prototype = {
      * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
      * @param {function} callback Callback function for Bot response
      */
-    parse: function(username, network, words, language, callback){
+    parse: function(username, words, language, callback){
       var self = this;
       if (language in self.dialogue === false){language = self.config.default_language};
       switch (words.match(self.config.regex)){
@@ -87,7 +87,7 @@ Bot.prototype = {
           break;
         default:
           self.logger.info('Bot requesting issue of card');
-          self.report_card.issueCard(username, network, function(err, card_id){
+          self.report_card.issueCard(username, self.config.network.name, function(err, card_id){
             if (err){
               self.logger.error('Bot encoutered error requesting card');
               return;
@@ -100,7 +100,19 @@ Bot.prototype = {
           });
           break;
         }
+      },
+
+      // received report
+      received: function(callback){
+        var self = this;
+
+        self.report_card.watchCards(self.config.network.name, function(err, report){
+          callback(err, report.username, report.username+'- '+self.dialogue['en'].received);
+        });
       }
+
 };
+
+
 
 module.exports = Bot;
