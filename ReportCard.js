@@ -167,8 +167,69 @@ ReportCard.prototype = {
      }
      else {
        self.logger.info('Checked card '+card_id+' - invalid');
-       callback(err, {received : 'invalid'});
+       callback(null, {received : 'invalid'});
      }
+   },
+
+   // Insert report from user (i.e. from server)
+   insertReport: function(card_id, report_object){
+
+     var self = this;
+
+     self.dbQuery({
+       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
+       values: [ card_id ]
+     },
+     function(err, result){
+
+       self.dbQuery(
+         {
+         text: "UPDATE grasp_cards SET received = TRUE WHERE card_id = $1",
+         values: [ card_id ]
+        },
+          function(err, result){
+            console.log('updated card');
+          }
+        );
+
+       //update card table
+       //update log table
+       //update log files
+     }
+   );
+   },
+
+   // Watch table
+   watchCards: function(network, callback){
+
+     var self = this;
+
+     self.pg.connect(self.config.pg.conString, function(err, client, done){
+       if (err){
+         self.logger.error("database err: " + err);
+         done();
+         callback( new Error('Database connection error') );
+         return;
+       }
+       // Return the listen notification
+       client.on('notification', function(msg) {
+         try{
+          var notification = JSON.parse(msg.payload);
+          if (notification.grasp_cards.network === network){
+            self.logger.info('Received card submission');
+            callback(null, notification.grasp_cards);
+          }
+         }
+         catch (e){
+           self.logger.error('Error with listen notification from database\n'+e);
+           callback(e);
+           return;
+         }
+       });
+
+       // Initiate the listen query
+       client.query("LISTEN watchers");
+     });
    }
 };
 

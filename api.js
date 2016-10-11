@@ -4,6 +4,10 @@
 module.exports = function(app, report_card, logger) {
 
   app.put('/report/:card_id', function(req, res){
+    // checkCardStatus
+    // insert
+    // return card id?
+    report_card.insertReport(req.params.card_id, req.body);
     res.send('Got a PUT request at /report/:card_id');
     logger.info(req.body);
     logger.debug('[/report/:card_id] Received card submission');

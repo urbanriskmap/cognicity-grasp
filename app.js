@@ -60,7 +60,6 @@ function exitWithStatus(exitStatus) {
 // Start
 logger.info("Application starting...");
 
-
 // GRASP objects
 var report_card = new ReportCard(config, pg, logger);
 var bot = new Bot(config.bot, dialogue, report_card, logger);
@@ -77,13 +76,17 @@ app.listen(3000, function(){
 require('./api')(app, report_card, logger);
 
 // Parse some user input, and return response
-/*bot.parse('Please send me a card', 'en', function(result){
+bot.parse('@nopemartians', 'Hi Bot!', 'en', function(err, result){
 	console.log('Bot> '+result);
-});*/
+});
 
 // Parse some user input, and return response
-bot.parse('@nopemartians', config.network.name,'Please send me a tweet', 'en', function(err, result){
-	console.log('Bot> @nopemartians'+result);
+bot.parse('@nopemartians', 'Please send me a report', 'en', function(err, result){
+	console.log('Bot> @nopemartians '+result);
+});
+
+bot.received(function(err, username, message){
+	console.log('Bot> '+message);
 });
 
 // Graceful exit
