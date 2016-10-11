@@ -13,7 +13,7 @@ module.exports = function(app, report_card, logger) {
   });
 
   app.get('/report/:card_id', function(req, res, next){
-      report_card.checkCardStatus(req.params.card_id, function(result){
+      report_card.checkCardStatus(req.params.card_id, function(err, result){
       if ( result.received === false){
         res.sendFile(__dirname+'/public/card.html');
         logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);
