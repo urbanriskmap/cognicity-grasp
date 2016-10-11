@@ -68,9 +68,11 @@ var bot = new Bot(config.bot, dialogue, report_card, logger);
 var app = express();
 app.use(bodyParser.json());
 app.use("/css", express.static(__dirname + '/public/css'));
+app.use("/vendor/css", express.static(__dirname + '/vendor/css'));
+app.use("/vendor/js", express.static(__dirname + '/vendor/js'));
 // Listen for report card requests
 app.listen(3000, function(){
-    logger.info('Express listening');
+    logger.info('Express listening on port 3000');
 });
 // API endpoints
 require('./api')(app, report_card, logger);

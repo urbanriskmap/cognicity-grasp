@@ -19,7 +19,7 @@ module.exports = function(app, report_card, logger) {
   app.get('/report/:card_id', function(req, res, next){
       report_card.checkCardStatus(req.params.card_id, function(err, result){
       if ( result.received === false){
-        res.sendFile(__dirname+'/public/card.html');
+        res.sendFile(__dirname+'/public/petabencana_background.html');
         logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);
       }
       else if (result.received === true){
