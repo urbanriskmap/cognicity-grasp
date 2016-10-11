@@ -9,6 +9,6 @@ var dialogue = {
     report: "Here's a link to your unique flood report ",
     received: "Thanks for your flood report, I've put it on the map https://petabencana.id"
   }
-}
+};
 
 module.exports = dialogue;

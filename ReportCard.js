@@ -167,7 +167,7 @@ ReportCard.prototype = {
      }
      else {
        self.logger.info('Checked card '+card_id+' - invalid');
-       callback(err, {received : 'invalid'});
+       callback(null, {received : 'invalid'});
      }
    },
 
@@ -190,13 +190,13 @@ ReportCard.prototype = {
           function(err, result){
             console.log('updated card');
           }
-        )
+        );
 
        //update card table
        //update log table
        //update log files
      }
-   )
+   );
    },
 
    // Watch table
@@ -206,7 +206,7 @@ ReportCard.prototype = {
 
      self.pg.connect(self.config.pg.conString, function(err, client, done){
        if (err){
-         self.logger.error("dataQuery: " + JSON.stringify(queryObject) + ", " + err);
+         self.logger.error("database err: " + err);
          done();
          callback( new Error('Database connection error') );
          return;
@@ -228,7 +228,7 @@ ReportCard.prototype = {
        });
 
        // Initiate the listen query
-       var query = client.query("LISTEN watchers");
+       client.query("LISTEN watchers");
      });
    }
 };

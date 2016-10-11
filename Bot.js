@@ -79,7 +79,7 @@ Bot.prototype = {
      */
     parse: function(username, words, language, callback){
       var self = this;
-      if (language in self.dialogue === false){language = self.config.default_language};
+      if (language in self.dialogue === false){language = self.config.default_language;}
       switch (words.match(self.config.regex)){
         case  null:
           self.logger.info('Bot could not detect a keyword');
