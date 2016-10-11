@@ -177,7 +177,7 @@ ReportCard.prototype = {
      var self = this;
 
      self.dbQuery({
-       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey",
+       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
        values: [ card_id ]
      },
      function(err, result){

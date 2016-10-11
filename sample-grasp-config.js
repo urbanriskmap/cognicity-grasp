@@ -12,7 +12,10 @@ var config = {
     card_url_prefix: 'http://localhost:3000/report',
     network: {
       name: 'twitter'
-      }
+    },
+    location: {
+      name: 'jakarta'
+    }
     },
   pg: {
     conString: "postgres://postgres@localhost:5432/cognicity_grasp"
