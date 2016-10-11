@@ -171,6 +171,24 @@ ReportCard.prototype = {
      }
    },
 
+   // Insert report from user (i.e. from server)
+   insertReport: function(card_id, report_object){
+
+     var self = this;
+
+     self.dbQuery({
+       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey",
+       values: [ card_id ]
+     },
+     function(err, result){
+       //update card table
+       //update log table
+       //update log files
+     }
+   )
+   },
+
+   // Watch table
    watchCards: function(network, callback){
 
      var self = this;
