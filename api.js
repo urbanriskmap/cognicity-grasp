@@ -7,6 +7,7 @@ module.exports = function(app, report_card, logger) {
     // checkCardStatus
     // insert
     // return card id?
+    report_card.insertReport(req.params.card_id, req.body);
     res.send('Got a PUT request at /report/:card_id');
     logger.info(req.body);
     logger.debug('[/report/:card_id] Received card submission');
@@ -16,7 +17,7 @@ module.exports = function(app, report_card, logger) {
   });
 
   app.get('/report/:card_id', function(req, res, next){
-      report_card.checkCardStatus(req.params.card_id, function(result){
+      report_card.checkCardStatus(req.params.card_id, function(err, result){
       if ( result.received === false){
         res.sendFile(__dirname+'/public/card.html');
         logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);

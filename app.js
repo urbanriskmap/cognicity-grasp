@@ -76,13 +76,13 @@ app.listen(3000, function(){
 require('./api')(app, report_card, logger);
 
 // Parse some user input, and return response
-/*bot.parse('Please send me a card', 'en', function(result){
+bot.parse('@nopemartians', 'Hi Bot!', 'en', function(err, result){
 	console.log('Bot> '+result);
-});*/
+});
 
 // Parse some user input, and return response
 bot.parse('@nopemartians', 'Please send me a report', 'en', function(err, result){
-	console.log('Bot> @nopemartians'+result);
+	console.log('Bot> @nopemartians '+result);
 });
 
 bot.received(function(err, username, message){

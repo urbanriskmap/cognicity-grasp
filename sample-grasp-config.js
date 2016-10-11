@@ -16,7 +16,7 @@ var config = {
     location: {
       name: 'jakarta'
     }
-    },
+  },
   pg: {
     conString: "postgres://postgres@localhost:5432/cognicity_grasp"
   }

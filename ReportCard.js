@@ -181,6 +181,17 @@ ReportCard.prototype = {
        values: [ card_id ]
      },
      function(err, result){
+
+       self.dbQuery(
+         {
+         text: "UPDATE grasp_cards SET received = TRUE WHERE card_id = $1",
+         values: [ card_id ]
+        },
+          function(err, result){
+            console.log('updated card');
+          }
+        )
+
        //update card table
        //update log table
        //update log files
