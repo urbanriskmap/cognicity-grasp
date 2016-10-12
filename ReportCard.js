@@ -211,13 +211,9 @@ ReportCard.prototype = {
                 }
                 callback(report_id);
               }
-            )
+            );
           }
         );
-
-       //update card table
-       //update log table
-       //update log files
      }
    );
    },
