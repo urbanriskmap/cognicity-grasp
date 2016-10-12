@@ -110,7 +110,6 @@ Bot.prototype = {
           callback(err, report.username, report.username+'- '+self.dialogue[report.language].received+'/'+report.report_id);
         });
       }
-
 };
 
 

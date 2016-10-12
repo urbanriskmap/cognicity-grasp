@@ -181,6 +181,11 @@ ReportCard.prototype = {
        values: [ card_id ]
      },
      function(err, result){
+       if (err){
+         self.logger.error(err);
+         callback(err, null);
+         return;
+       }
        var report_id = result[0].pkey;
        self.dbQuery(
          {
@@ -188,7 +193,25 @@ ReportCard.prototype = {
          values: [ report_id, card_id ]
          },
           function(err, result){
-            callback(report_id);
+            if (err){
+              self.logger.error(err);
+              callback(err, null);
+              return;
+            }
+            self.dbQuery(
+              {
+                text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
+                values: [ card_id, "REPORT RECEIVED"]
+              },
+              function(err, result){
+                if (err){
+                  self.logger.error(err);
+                  callback(err, null);
+                  return;
+                }
+                callback(report_id);
+              }
+            )
           }
         );
 
