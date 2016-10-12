@@ -87,7 +87,7 @@ Bot.prototype = {
           break;
         default:
           self.logger.info('Bot requesting issue of card');
-          self.report_card.issueCard(username, self.config.network.name, function(err, card_id){
+          self.report_card.issueCard(username, self.config.network.name, language, function(err, card_id){
             if (err){
               self.logger.error('Bot encoutered error requesting card');
               return;
@@ -107,7 +107,7 @@ Bot.prototype = {
         var self = this;
 
         self.report_card.watchCards(self.config.network.name, function(err, report){
-          callback(err, report.username, report.username+'- '+self.dialogue['en'].received);
+          callback(err, report.username, report.username+'- '+self.dialogue[report.language].received+'/'+report.report_id);
         });
       }
 

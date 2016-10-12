@@ -98,7 +98,7 @@ ReportCard.prototype = {
    * @param {string} network Name of user social messaging network (e.g. Twitter)
    * @param {function} callback Callback function to return card id
    */
-  issueCard: function(username, network, callback){
+  issueCard: function(username, network, language, callback){
 
     var self = this;
 
@@ -107,8 +107,8 @@ ReportCard.prototype = {
 
     self.dbQuery(
       {
-      text: "INSERT INTO grasp_cards (card_id, username, network, received) VALUES ($1, $2, $3, FALSE);",
-      values: [ _card_id, username, network ]
+      text: "INSERT INTO grasp_cards (card_id, username, network, language, received) VALUES ($1, $2, $3, $4, FALSE);",
+      values: [ _card_id, username, network, language ]
       },
       function(err, result){
         if (err){
@@ -154,12 +154,12 @@ ReportCard.prototype = {
             self.logger.error(err);
             callback(err, null);
           }
-          else if (result[0].received === false){
+          else if (result.length > 0 && result[0].received === false){
             self.logger.info('Checked card '+card_id+' - valid');
             callback(err, result[0]);
           }
           else {
-            self.logger.info('Checked card '+card_id+' - already completed');
+            self.logger.info('Checked card '+card_id+' - card invalid or already completed');
             callback(err, {received : 'invalid'});
           }
         }
@@ -172,7 +172,7 @@ ReportCard.prototype = {
    },
 
    // Insert report from user (i.e. from server)
-   insertReport: function(card_id, report_object){
+   insertReport: function(card_id, report_object, callback){
 
      var self = this;
 
@@ -181,14 +181,14 @@ ReportCard.prototype = {
        values: [ card_id ]
      },
      function(err, result){
-
+       var report_id = result[0].pkey;
        self.dbQuery(
          {
-         text: "UPDATE grasp_cards SET received = TRUE WHERE card_id = $1",
-         values: [ card_id ]
-        },
+         text: "UPDATE grasp_cards SET received = TRUE, report_id = $1 WHERE card_id = $2",
+         values: [ report_id, card_id ]
+         },
           function(err, result){
-            console.log('updated card');
+            callback(report_id);
           }
         );
 
