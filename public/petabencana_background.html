@@ -18,12 +18,12 @@
     <!-- jqery (for bootstrap) -->
     <!-- TODO: don't use cdn... download and serve ourselves. Grunt... bower?  -->
     <script   src="https://code.jquery.com/jquery-3.1.1.js"   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="   crossorigin="anonymous"></script>
-    <script type="text/javascript" src="/vendor/js/bootstrap.js"></script> 
+    <script type="text/javascript" src="/vendor/js/bootstrap.js"></script>
 
     <script type="text/javascript">
       $(function(){
-          $('#myModal').modal('show'); 
-          }); 
+          $('#myModal1').modal('show');
+          });
     </script>
 
   </head>
@@ -31,26 +31,100 @@
     <div id="card">
       <h1>Background Image</h1>
 
-      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+      <!-- Map Modal -->
+      <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-              <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Map Modal</h4>
             </div>
             <div class="modal-body">
-              MOOODAAAL 
+              Map goes here
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-default btn-next">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WaterLevel Modal -->
+      <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">WaterLevel Modal</h4>
+            </div>
+            <div class="modal-body">
+              Water Level Slider goes here
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default btn-prev">Prev</button>
+              <button type="button" class="btn btn-default btn-next">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Modal -->
+      <div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Description Modal</h4>
+            </div>
+            <div class="modal-body">
+              Description Text Area goes here
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default btn-prev">Prev</button>
+              <button type="button" class="btn btn-default btn-next">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Report Modal -->
+      <div class="modal fade" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Submit Report Modal</h4>
+            </div>
+            <div class="modal-body">
+              Submit Report Button goes here
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default btn-prev">Prev</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!--JavaScript to submit form-->
+
+    <!--JavaScript to submit form & handle prev & next-->
+    <script type="text/javascript">
+      $("div[id^='myModal']").each(function(){
+
+        var currentModal = $(this);
+
+        //click next
+        currentModal.find('.btn-next').click(function(){
+          currentModal.modal('hide');
+          currentModal.closest("div[id^='myModal']").nextAll("div[id^='myModal']").first().modal('show');
+        });
+
+        //click prev
+        currentModal.find('.btn-prev').click(function(){
+          currentModal.modal('hide');
+          currentModal.closest("div[id^='myModal']").prevAll("div[id^='myModal']").first().modal('show');
+        });
+
+      });
+    </script>
   </body>
 </html>

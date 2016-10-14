@@ -18,7 +18,7 @@ var config = {
     }
   },
   pg: {
-    conString: "postgres://postgres@localhost:5432/cognicity_grasp"
+    conString: "postgres://postgres@localhost/cognicity_grasp"
   }
 };
 

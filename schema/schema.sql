@@ -20,6 +20,10 @@ CREATE TABLE grasp_whatsapp_users (
   CONSTRAINT grasp_whatsapp_users PRIMARY KEY (pkey)
 );*/
 
+-- Spatial extensions
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+
 --Table grasp_card_id (card_id, received[true/false])
 CREATE TABLE grasp_cards (
   pkey bigserial NOT NULL,
