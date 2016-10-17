@@ -171,11 +171,11 @@ ReportCard.prototype = {
           callback(err, null);
         }
         else if (result.length > 0){
-          self.logger.info('Checked card '+card_id+' - valid');
+          self.logger.info('Checked card '+card_id+' is valid');
           callback(null, result[0]);
         }
         else {
-          self.logger.info('Checked card '+card_id+' - card not found in database');
+          self.logger.info('Checked card '+card_id+' was not found in database');
           callback(null, {received : null});
         }
       };
@@ -218,7 +218,7 @@ ReportCard.prototype = {
        self._checkCardStatus(card_id, callback);
      }
      else {
-       self.logger.info('Checked card '+card_id+' - found invalid by shortid');
+       self.logger.info('Checked card '+card_id+' was found invalid by shortid');
        callback(null, {received : null});
      }
    },
