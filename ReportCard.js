@@ -150,8 +150,9 @@ ReportCard.prototype = {
           self.logger.info('Issued card '+card_id);
           self._insertLogTbl(card_id, "CARD ISSUED", callback);
         }
-      });
-    },
+      }
+    );
+  },
 
     /**
      * Check status of card in grasp_cards table
@@ -189,6 +190,51 @@ ReportCard.prototype = {
      );
    },
 
+   //TODO - jsdoc
+   _insertReport: function(card_id, report_object, callback){
+
+     var self = this;
+
+     self.dbQuery({
+       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
+       values: [ card_id ]
+     },
+     function(err, result){
+       if (err){
+         self.logger.error(err);
+         callback(err, null);
+       }
+       else {
+         self._updateGraspCards(card_id, result[0].pkey, callback);
+       }
+     }
+   );
+   },
+
+   //TODO - jsdoc
+   _updateGraspCards: function(card_id, report_id, callback){
+
+     var self = this;
+
+     self.dbQuery(
+       {
+       text: "UPDATE grasp_cards SET received = TRUE, report_id = $1 WHERE card_id = $2",
+       values: [ report_id, card_id ]
+       },
+        function(err, result){
+          if (err){
+            self.logger.error(err);
+            callback(err, null);
+          }
+          else {
+            self._insertLogTbl(card_id, 'REPORT RECEIVED', function(card_id){
+              callback(report_id);
+            });
+          }
+        }
+      );
+   },
+
   /**
    * Create card unique id, register in database, and return value via callback
    * @param {string} username Unique username requesting card (e.g. @user)
@@ -204,7 +250,6 @@ ReportCard.prototype = {
     var _card_id = self._generate_id();
 
     self._insertCard(_card_id, username, network, language, callback);
-
   },
 
   /**
@@ -230,46 +275,7 @@ ReportCard.prototype = {
 
      var self = this;
 
-     self.dbQuery({
-       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
-       values: [ card_id ]
-     },
-     function(err, result){
-       if (err){
-         self.logger.error(err);
-         callback(err, null);
-         return;
-       }
-       var report_id = result[0].pkey;
-       self.dbQuery(
-         {
-         text: "UPDATE grasp_cards SET received = TRUE, report_id = $1 WHERE card_id = $2",
-         values: [ report_id, card_id ]
-         },
-          function(err, result){
-            if (err){
-              self.logger.error(err);
-              callback(err, null);
-              return;
-            }
-            self.dbQuery(
-              {
-                text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
-                values: [ card_id, "REPORT RECEIVED"]
-              },
-              function(err, result){
-                if (err){
-                  self.logger.error(err);
-                  callback(err, null);
-                  return;
-                }
-                callback(report_id);
-              }
-            );
-          }
-        );
-     }
-   );
+     self._insertReport(card_id, report_object, callback);
    },
 
    // Watch table

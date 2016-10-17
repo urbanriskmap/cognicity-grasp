@@ -71,7 +71,7 @@ describe( 'ReportCard', function(){
 
   // Test suite for checkCardStatus function
   describe( 'Succesful checkCardStatus', function(){
-    var old_shortidIsValid, old_loggerDebug, old_loggerInfo, old_dbQuery, isValid = false;
+    var old_shortidIsValid, old_loggerDebug, old_loggerInfo, old_loggerError, old_dbQuery, isValid = false;
 
     before(function(){
       old_shortidIsValid = shortid.isValid;
@@ -82,7 +82,7 @@ describe( 'ReportCard', function(){
         else {
           return (false);
         }
-      }
+      };
       old_loggerDebug = report_card.logger.debug;
       report_card.logger.debug = function(value){
         console.log('Mocked logger [debug]: '+value);
@@ -91,11 +91,16 @@ describe( 'ReportCard', function(){
       report_card.logger.info = function(value){
         console.log('Mocked logger [info]: '+value);
       };
+      old_loggerError = report_card.logger.error;
+      report_card.logger.error = function(value){
+        console.log('Mocked logger [error]: '+value);
+      };
       old_dbQuery = report_card.dbQuery;
-    })
+    });
     it ('Catches invalid card id', function(){
       isValid = false;
       report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
         test.value(value).is({received : null});
       });
     });
@@ -104,8 +109,9 @@ describe( 'ReportCard', function(){
       isValid = true;
       report_card.dbQuery = function(object, callback){
         callback(null, [{received : false}]);
-      }
+      };
       report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
         test.value(value.received).is(false);
       });
       report_card.dbQuery = old_dbQuery;
@@ -115,8 +121,9 @@ describe( 'ReportCard', function(){
       isValid = true;
       report_card.dbQuery = function(object, callback){
         callback(null, [{received : true}]);
-      }
+      };
       report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
         test.value(value.received).is(true);
       });
       report_card.dbQuery = old_dbQuery;
@@ -126,27 +133,25 @@ describe( 'ReportCard', function(){
       isValid = true;
       report_card.dbQuery = function(object, callback){
         callback(null, []);
-      }
+      };
       report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
         test.value(value.received).is(null);
       });
       report_card.dbQuery = old_dbQuery;
     });
-    /*
+
     it ('Catches database error for _checkCardStatus', function(){
       isValid = true;
       report_card.dbQuery = function(object, callback){
-        return(1, null);
-      }
+        callback(new Error('Database query error'));
+      };
       report_card.checkCardStatus('123', function(err, value){
-        test.value(err).is(1);
+        test.value(err).is(Error());
+        test.value(value).is(null);
       });
     });
-    */
-
-
   });
-
 });
     /*
     it ('Sends correct card id to database card table', function(){
