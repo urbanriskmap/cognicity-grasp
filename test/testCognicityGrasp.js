@@ -96,20 +96,43 @@ describe( 'ReportCard', function(){
     it ('Catches invalid card id', function(){
       isValid = false;
       report_card.checkCardStatus('123', function(err, value){
-        test.value(value).is({received : 'invalid'});
-      })
+        test.value(value).is({received : null});
+      });
     });
-    /*
-    it ('Filters a succesful result from _checkCardStatus', function(){
+
+    it ('Filters a false result from _checkCardStatus', function(){
       isValid = true;
       report_card.dbQuery = function(object, callback){
-        var result = [{received : 123}]
-        return (null, result);
+        callback(null, [{received : false}]);
       }
       report_card.checkCardStatus('123', function(err, value){
         test.value(value.received).is(false);
       });
+      report_card.dbQuery = old_dbQuery;
     });
+
+    it ('Filters a true result from _checkCardStatus ', function(){
+      isValid = true;
+      report_card.dbQuery = function(object, callback){
+        callback(null, [{received : true}]);
+      }
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(value.received).is(true);
+      });
+      report_card.dbQuery = old_dbQuery;
+    });
+
+    it ('Filters an invalid result from _checkCardStatus ', function(){
+      isValid = true;
+      report_card.dbQuery = function(object, callback){
+        callback(null, []);
+      }
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(value.received).is(null);
+      });
+      report_card.dbQuery = old_dbQuery;
+    });
+    /*
     it ('Catches database error for _checkCardStatus', function(){
       isValid = true;
       report_card.dbQuery = function(object, callback){

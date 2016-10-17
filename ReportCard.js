@@ -170,13 +170,13 @@ ReportCard.prototype = {
           self.logger.error(err);
           callback(err, null);
         }
-        else if (result.length > 0 && result[0].received === false){
+        else if (result.length > 0){
           self.logger.info('Checked card '+card_id+' - valid');
           callback(null, result[0]);
         }
         else {
-          self.logger.info('Checked card '+card_id+' - card invalid or already completed');
-          callback(null, {received : 'invalid'});
+          self.logger.info('Checked card '+card_id+' - card not found in database');
+          callback(null, {received : null});
         }
       };
 
@@ -218,12 +218,14 @@ ReportCard.prototype = {
        self._checkCardStatus(card_id, callback);
      }
      else {
-       self.logger.info('Checked card '+card_id+' - invalid');
-       callback(null, {received : 'invalid'});
+       self.logger.info('Checked card '+card_id+' - found invalid by shortid');
+       callback(null, {received : null});
      }
    },
 
    // Insert report from user (i.e. from server)
+   // TODO refactor database functions
+   // TODO jsdoc
    insertReport: function(card_id, report_object, callback){
 
      var self = this;
