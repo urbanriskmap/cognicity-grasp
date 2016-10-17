@@ -72,7 +72,6 @@ Bot.prototype = {
     /**
      * Function to parse user input and provide response based on keyword detection
      * @param {string} username Unique username e.g. @twitter
-     * @param {string} network User social messaging network e.g. twitter
      * @param {string} words Text string containing user input
      * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
      * @param {function} callback Callback function for Bot response

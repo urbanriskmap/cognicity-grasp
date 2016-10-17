@@ -269,7 +269,6 @@ ReportCard.prototype = {
    },
 
    // Insert report from user (i.e. from server)
-   // TODO refactor database functions
    // TODO jsdoc
    insertReport: function(card_id, report_object, callback){
 
