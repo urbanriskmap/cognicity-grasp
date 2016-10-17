@@ -28,35 +28,51 @@ describe( 'ReportCard', function(){
   describe( 'Succesful issueCard', function(){
 
     // Mock functions
-    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerInfo;
-    var cardDBvalue, logDBvalue, loggerValue;
+    var old_insertCard, old_generateID;
+    var fail_database = 0;
     before (function(){
-        oldDBIssueCard = report_card.db.issueCard;
-        report_card.db.issueCard = function(param_dict, callback){
-          cardDBvalue = param_dict[0];
-          callback(0, 'data');
+        // insert into report card table
+        old_insertCard = report_card._insertCard;
+        report_card._insertCard = function(card_id, username, network, language, callback){
+          if (fail_database === 0){
+            callback(null, card_id);
+          }
+          else {
+            callback(1, null);
+          }
         };
-        oldDBInsertLog = report_card.db.insertLog;
-        report_card.db.insertLog = function(param_dict, callback){
-          logDBvalue = param_dict
-          callback(0, 'log')
+        // generate onetime link
+        old_generateID = report_card._generate_id;
+        report_card._generate_id = function(){
+          return('ABC1234');
         };
-        oldGenerateID = report_card.issueCard._generate_id;
-        report_card._generate_id = function(){return 'ABC1234'};
-
-        oldLoggerInfo = report_card.logger.info;
-        report_card.logger.info = function(message){
-          loggerValue = message;
-        }
     });
 
-    // Test
+    // Test return card id
     it ('Returns correct card id ', function(){
-      report_card.issueCard(function(result){
-        test.value(result).is('ABC1234');
+      report_card.issueCard('username', 'network', 'language', function(err, card_id){
+        test.value(err).is(null);
+        test.value(card_id).is('ABC1234');
       });
     });
 
+    it ('Catches database error with _insertCard', function(){
+      fail_database = 1;
+      report_card.issueCard('username', 'network', 'language', function(err, card_id){
+        test.value(err).is(1);
+        test.value(card_id).is(null);
+      });
+    });
+    after (function(){
+      report_card._generate_id = old_generateID;
+      report_card.issueCard = old_insertCard;
+    });
+  });
+
+  // Test suite for checkCardStatus function
+
+});
+    /*
     it ('Sends correct card id to database card table', function(){
       report_card.issueCard(function(result){
         test.value(cardDBvalue).is('ABC1234');
@@ -195,4 +211,4 @@ describe( 'Bot', function(){
       bot.logger.info = oldLoggerInfo;
     });
   });
-});
+});*/

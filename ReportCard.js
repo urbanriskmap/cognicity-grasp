@@ -92,6 +92,48 @@ ReportCard.prototype = {
 		});
   },
 
+  _insertLogTbl: function(card_id, event_type, callback){
+
+    var self = this;
+
+    self.dbQuery(
+      {
+        text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
+        values: [ card_id, event_type]
+      },
+      function(err, result){
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        }
+        else {
+          callback(null, card_id);
+        }
+      }
+    );
+  },
+
+  _insertCard: function(card_id, username, network, language, callback){
+
+    var self = this;
+
+    self.dbQuery(
+      {
+      text: "INSERT INTO grasp_cards (card_id, username, network, language, received) VALUES ($1, $2, $3, $4, FALSE);",
+      values: [ card_id, username, network, language ]
+      },
+      function(err, result){
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        }
+        else {
+          self.logger.info('Issued card '+card_id);
+          self._insertLogTbl(card_id, "CARD ISSUED", callback);
+        }
+      });
+    },
+
   /**
    * Create card unique id, register in database, and return value via callback
    * @param {string} username Unique username requesting card (e.g. @user)
@@ -105,36 +147,8 @@ ReportCard.prototype = {
     // Create card id
     var _card_id = self._generate_id();
 
-    self.dbQuery(
-      {
-      text: "INSERT INTO grasp_cards (card_id, username, network, language, received) VALUES ($1, $2, $3, $4, FALSE);",
-      values: [ _card_id, username, network, language ]
-      },
-      function(err, result){
-        if (err){
-          self.logger.error(err);
-          callback(err, null);
-        }
-        else {
-          self.dbQuery(
-            {
-              text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
-              values: [ _card_id, "CARD ISSUED"]
-            },
-            function(err, result){
-              if (err){
-                self.logger.error(err);
-                callback(err, null);
-              }
-              else {
-                self.logger.info('Issued card '+_card_id);
-                callback(err, _card_id);
-              }
-            }
-          );
-        }
-      }
-    );
+    self._insertCard(_card_id, username, network, language, callback);
+
   },
 
   /**
