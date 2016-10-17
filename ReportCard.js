@@ -37,7 +37,7 @@ ReportCard.prototype = {
     * Configured instance of logger object from Winston module
     * @type {object}
     */
-    logger: null,
+   logger: null,
 
   /**
    * Private method to generate card id (nested function allows testing)
@@ -92,6 +92,14 @@ ReportCard.prototype = {
 		});
   },
 
+  /**
+   * Insert a record into the grasp_log table
+   * Call the callback with card_id once query is succesful.
+   *
+   * @param {string} card_id Unique card identifier
+   * @param {string} event_type Log information (e.g. "CARD ISSUED")
+   * @param {function} callback Callback function for handling error or card_id
+   */
   _insertLogTbl: function(card_id, event_type, callback){
 
     var self = this;
@@ -113,6 +121,17 @@ ReportCard.prototype = {
     );
   },
 
+  /**
+   * Insert a record into the grasp_cards table
+   * Call the callback with card_id once query is succesful.
+   *
+   * Function to parse user input and provide response based on keyword detection
+   * @param {string} card_id Unique card identifier
+   * @param {string} username Unique username e.g. @twitter
+   * @param {string} network User social messaging network e.g. twitter
+   * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
+   * @param {function} callback Callback function for handling error or card_id
+   */
   _insertCard: function(card_id, username, network, language, callback){
 
     var self = this;
@@ -134,6 +153,40 @@ ReportCard.prototype = {
       });
     },
 
+    /**
+     * Check status of card in grasp_cards table
+     * Call the callback with result object once query is succesful.
+     *
+     * Function to parse user input and provide response based on keyword detection
+     * @param {string} card_id Unique card identifier
+     * @param {function} callback Callback function for handling status result object
+     */
+    _checkCardStatus: function(card_id, callback){
+
+      var self = this;
+
+      self.dbQuery(
+        {
+        text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
+        values : [ card_id ]
+       },
+       function(err, result){
+         if (err){
+           self.logger.error(err);
+           callback(err, null);
+         }
+         else if (result.length > 0 && result[0].received === false){
+           self.logger.info('Checked card '+card_id+' - valid');
+           callback(null, result[0]);
+         }
+         else {
+           self.logger.info('Checked card '+card_id+' - card invalid or already completed');
+           callback(null, {received : 'invalid'});
+         }
+       }
+     );
+   },
+
   /**
    * Create card unique id, register in database, and return value via callback
    * @param {string} username Unique username requesting card (e.g. @user)
@@ -154,30 +207,12 @@ ReportCard.prototype = {
   /**
    * Create card unique id, register in database, and return value via callback
    * @param {card_id} string Card id
+   * @param {function} callback Callback function to return status result
    */
   checkCardStatus: function(card_id, callback){
      var self = this;
      if (shortid.isValid(card_id)){
-       self.dbQuery(
-         {
-         text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
-         values : [ card_id ]
-        },
-        function(err, result){
-          if (err){
-            self.logger.error(err);
-            callback(err, null);
-          }
-          else if (result.length > 0 && result[0].received === false){
-            self.logger.info('Checked card '+card_id+' - valid');
-            callback(err, result[0]);
-          }
-          else {
-            self.logger.info('Checked card '+card_id+' - card invalid or already completed');
-            callback(err, {received : 'invalid'});
-          }
-        }
-      );
+       self._checkCardStatus(card_id, callback);
      }
      else {
        self.logger.info('Checked card '+card_id+' - invalid');
