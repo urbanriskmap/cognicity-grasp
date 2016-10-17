@@ -165,25 +165,27 @@ ReportCard.prototype = {
 
       var self = this;
 
+      var filter = function(err, result){
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        }
+        else if (result.length > 0 && result[0].received === false){
+          self.logger.info('Checked card '+card_id+' - valid');
+          callback(null, result[0]);
+        }
+        else {
+          self.logger.info('Checked card '+card_id+' - card invalid or already completed');
+          callback(null, {received : 'invalid'});
+        }
+      };
+
       self.dbQuery(
         {
         text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
         values : [ card_id ]
        },
-       function(err, result){
-         if (err){
-           self.logger.error(err);
-           callback(err, null);
-         }
-         else if (result.length > 0 && result[0].received === false){
-           self.logger.info('Checked card '+card_id+' - valid');
-           callback(null, result[0]);
-         }
-         else {
-           self.logger.info('Checked card '+card_id+' - card invalid or already completed');
-           callback(null, {received : 'invalid'});
-         }
-       }
+       filter
      );
    },
 
@@ -191,6 +193,7 @@ ReportCard.prototype = {
    * Create card unique id, register in database, and return value via callback
    * @param {string} username Unique username requesting card (e.g. @user)
    * @param {string} network Name of user social messaging network (e.g. Twitter)
+   * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
    * @param {function} callback Callback function to return card id
    */
   issueCard: function(username, network, language, callback){
@@ -205,8 +208,8 @@ ReportCard.prototype = {
   },
 
   /**
-   * Create card unique id, register in database, and return value via callback
-   * @param {card_id} string Card id
+   * Check the validity and status of a card id
+   * @param {string} card_id Unique card identifier
    * @param {function} callback Callback function to return status result
    */
   checkCardStatus: function(card_id, callback){
