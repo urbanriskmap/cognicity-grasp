@@ -18,6 +18,10 @@ module.exports = function(app, report_card, logger) {
 
   app.get('/report/:card_id', function(req, res, next){
       report_card.checkCardStatus(req.params.card_id, function(err, result){
+      if (err){
+        res.send('Error - report card id invalid');
+        logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- invalid');
+      }
       if ( result.received === false){
         res.sendFile(__dirname+'/public/petabencana_background.html');
         logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);
@@ -25,10 +29,6 @@ module.exports = function(app, report_card, logger) {
       else if (result.received === true){
         res.send('Error - report already received');
         logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- already received');
-      }
-      else {
-        res.send('Error - report card id invalid');
-        logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- invalid');
       }
     });
   });
