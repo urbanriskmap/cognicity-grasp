@@ -1,0 +1,25 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    106.8412529,
+                    -6.2235964
+                ],
+                "type": "Point"
+            },
+            "properties": {
+                "created_at": "2015-12-08T14:31:14",
+                "image_url": null,
+                "pkey": 22,
+                "source": "twitter",
+                "status": "confirmed",
+                "text": "@petajkt #banjir test",
+                "title": null,
+                "url": "http://twitter.com/fittfitria/statuses/674129090870272002"
+            },
+            "type": "Feature"
+        }
+    ],
+    "type": "FeatureCollection"
+}

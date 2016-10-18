@@ -32,4 +32,15 @@ module.exports = function(app, report_card, logger) {
       }
     });
   });
+
+  var mockReports = require('./mocks/mockReports');
+  app.get('/reports/confirmed/:id', function(req, res, next){
+    //send some mock data for now so our front end devs can work on it
+    if( !req.format){
+      res.status(400).send('invalid GET request to /reports/confirmed without format parameter');
+    }
+    res.status(200).json(
+      mockReports
+    );
+  });
 };
