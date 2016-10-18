@@ -15,7 +15,12 @@ var express = require('express'); // web
 var bodyParser = require('body-parser'); // web body parse
 
 // Grasp objects
-var ReportCard = require('./ReportCard');
+var frontEndOnly = false;
+if (frontEndOnly){
+  var ReportCard = require('./mockReportCard');
+} else {
+  var ReportCard = require('./ReportCard');
+}
 var Bot = require('./Bot');
 
 // Local config
