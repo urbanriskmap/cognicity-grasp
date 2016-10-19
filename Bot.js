@@ -61,7 +61,7 @@ Bot.prototype = {
      * @param {string} card_id Unique card identifier
      * @param {function} callback Callback function for Bot response
      */
-    _card_address: function(card_id, callback){
+    _cardAddress: function(card_id, callback){
       var self = this;
       if (!self.config.card_url_prefix){
         self.logger.error('[cardAddress] No card url prefix specified');
@@ -79,7 +79,7 @@ Bot.prototype = {
      * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
      * @param {function} callback Callback function for Bot response
      */
-    _request_card: function(username, network, language, callback){
+    _requestCard: function(username, network, language, callback){
       var self = this;
 
       // local function bot text + card address
@@ -93,7 +93,7 @@ Bot.prototype = {
           callback(err, null);
         }
         else {
-          self._card_address(card_id, response);
+          self._cardAddress(card_id, response);
         }
       });
     },
@@ -117,7 +117,7 @@ Bot.prototype = {
      * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
      * @param {function} callback Callback function for Bot response
      */
-    parse_request: function(username, words, language, callback){
+    parseRequest: function(username, words, language, callback){
       var self = this;
 
       var filter = words.match(self.config.regex);
@@ -132,12 +132,12 @@ Bot.prototype = {
         case 'banjir':
           self.logger.info('Bot detected request keyword "banjir"');
           //self.report_card.issueCard(username, self.config.network.name, language, )
-          self._request_card(username, self.config.network.name, language, callback);
+          self._requestCard(username, self.config.network.name, language, callback);
           break;
 
         case 'flood':
           self.logger.info('Bot detected request keyword "flood"');
-          self._request_card(username, self.config.network.name, language, callback);
+          self._requestCard(username, self.config.network.name, language, callback);
           break;
       }
     },
