@@ -48,6 +48,14 @@ Bot.prototype = {
     */
   logger: null,
 
+    _get_dialogue: function(dialogue, language){
+      var self = this;
+
+      if (language in dialogue === false){language = self.config.default_language;}
+
+      return (dialogue[language]);
+    },
+
     /**
      * Function to create one time link address for report card_id
      * @param {string} card_id Unique card identifier
@@ -74,11 +82,9 @@ Bot.prototype = {
     _request_card: function(username, network, language, callback){
       var self = this;
 
-      if (language in self.dialogue.requests.card === false){language = self.config.default_language;}
-
       // local function bot text + card address
       var response = function(err, card_address){
-        callback(err, self.dialogue.requests.card[language]+' '+card_address);
+        callback(err, self._get_dialogue(self.dialogue.requests.card, language)+' '+card_address);
       };
 
       self.report_card.issueCard(username, network, language, function(err, card_id){
@@ -101,9 +107,7 @@ Bot.prototype = {
     ahoy: function(username, language, callback){
       var self = this;
 
-      if (language in self.dialogue.ahoy === false){language = self.config.default_language;}
-
-      callback(null, self.dialogue.ahoy[language]);
+      callback(null, self._get_dialogue(self.dialogue.ahoy, language));
     },
 
     /**
@@ -146,7 +150,9 @@ Bot.prototype = {
         var self = this;
 
         self.report_card.watchCards(self.config.network.name, function(err, report){
-          callback(err, report.username, report.username+'- '+self.dialogue.confirmation[report.language]+'/'+report.report_id);
+          callback(err, report.username,
+                        report.username+'- '+self._get_dialogue(self.dialogue.confirmation,
+                          report.language)+' https://petabencana.id/jakarta/'+report.report_id);
         });
       }
 };

@@ -10,6 +10,7 @@ var config = {
   bot : {
     regex: (/banjir|flood/gi),
     card_url_prefix: 'http://localhost:3000/report',
+    default_language: 'en',
     network: {
       name: 'twitter'
     },

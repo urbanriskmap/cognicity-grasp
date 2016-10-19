@@ -5,7 +5,7 @@ var dialogue = {
   },
   requests: {
     card : {
-      en: 'Hello, please send me your flood report using this link ',
+      en: 'Hello, please send me your flood report using this link',
       id: 'Hello, please send me your flood report using this link'
     }
   },

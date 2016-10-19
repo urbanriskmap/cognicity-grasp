@@ -81,7 +81,7 @@ bot.ahoy('@nopemartians', 'en', function(err, result){
 });
 
 // Parse some user input, and return response
-bot.parse_request('@nopemartians', 'Please send me a flood report', 'en', function(err, result){
+bot.parse_request('@nopemartians', 'Please send me a flood report', 'in', function(err, result){
 	console.log('Bot> @nopemartians '+result);
 });
 
