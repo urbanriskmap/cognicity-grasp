@@ -114,7 +114,7 @@ ReportCard.prototype = {
     var self = this;
 
     // Create card id
-    var _card_id = 'rcardtest'; 
+    var _card_id = test_card_id; 
     self.received = false; 
 
     self.logger.info('Issued mock testing card '+_card_id);
@@ -130,7 +130,8 @@ ReportCard.prototype = {
      var self = this;
 
      if (card_id === test_card_id){
-       callback(null, {recieved: self.recieved}); 
+       self.logger.debug('Checked card status =' + self.received); 
+       callback(null, {received: self.received}); 
      }
      else {
        self.logger.info('Checked card '+card_id+' - invalid');
@@ -157,7 +158,7 @@ ReportCard.prototype = {
      self.logger.info("Got a watchcards notification in mockReportCard"); 
      //TODO: send a mock report object- 
      //Flattent out mockReportCard and send that for testing 
-     var report = {}; 
+     var report = {username: 'testusername'};
      callback(null, report); 
 
    }
