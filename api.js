@@ -23,7 +23,7 @@ module.exports = function(app, report_card, logger) {
         logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- invalid');
       }
       if ( result.received === false){
-        res.sendFile(__dirname+'/public/petabencana_background.html');
+        res.sendFile(__dirname+'/public/landing.htm');
         logger.debug('[/report/:card_id] Approved access for card '+req.params.card_id);
       }
       else if (result.received === true){

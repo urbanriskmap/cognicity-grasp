@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!--LEAFLET CDN & stylesheet-->
+  <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css">
+
+  <!--jQuery CDN-->
+  <!--<script src="jquery-3.1.1.min.js"></script>-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+  <!--Icons-->
+  <script src="https://use.fontawesome.com/29f7ef3680.js"></script>
+
+  <!--CSS-->
+  <link rel="stylesheet" href="/css/landing.css">
+
+</head>
+
+<body>
+
+  <!-- BASE LANDING PAGE MAP or WEBPAGE -->
+  <div id="baseMap">
+  </div>
+
+  <!-- SCREEN -->
+  <div id="screen">
+  </div>
+
+  <!--REPORT CARD -->
+  <div id="cardFrame">
+    <div id="header">
+      <p id="cardTitle">Loading...</p>
+    </div>
+
+    <div id="content">
+
+      <!-- CARD 1 : Location -->
+      <div id="contentCard1" class="cardInner">
+        <div id="cardMapWrapper">
+          <div id="picker">
+            <img src="/svg/locationPicker.svg">
+          </div>
+        </div>
+        <div id="locationWrapper">
+          <!--<button id="resetLocation">&#9673;</button>-->
+          <button id="resetLocation"><i class="fa fa-location-arrow" aria-hidden="true"></i></button>
+          <button id="setLocation"><i class="fa fa-map-marker" aria-hidden="true"></i></button>
+          <!--<button id="setLocation">&#9906;</button>-->
+        </div>
+      </div>
+
+      <!-- CARD 2 : Flood height -->
+      <div id="contentCard2" class="cardInner">
+        <div id="bgRef">
+          <img id="bgImg" src="/svg/heightReference2.svg">
+          <div id="waterFill">
+          </div>
+          <div id="slider">
+            <button id="sliderKnob"></button>
+          </div>
+          <p id="hText"></p>
+        </div>
+        <div id="dragRef">
+          <img src="/svg/swipeAid-02.svg">
+        </div>
+        <div id="hideZone">
+        </div>
+      </div>
+
+      <!-- CARD 3 : Flood height -->
+      <div id="contentCard3" class="cardInner">
+        <div id="textWrapper">
+          <textarea id="descripText" maxlength="140" rows="5" spellcheck="true"></textarea>
+          <p id="charRef">0/140</p>
+        </div>
+      </div>
+
+      <!-- CARD 4 : Review & submit -->
+      <div id="contentCard4" class="cardInner">
+        <button id="getVal">Fetch</button>
+        <p>Location:</p>
+        <p id="geoPosition"></p>
+        <p>Height:</p>
+        <p id="floodH"></p>
+        <p>Description:</p>
+        <p id="comment"></p>
+      </div>
+
+    </div>
+
+    <div id="nav">
+      <div class="navButtons">
+        <button id="prev">&#10094;</button>
+        <button id="next">&#10095;</button>
+      </div>
+      <div id="tabTracker">
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/landing.js">
+  </script>
+
+</body>
+</html>

@@ -15,6 +15,7 @@ var express = require('express'); // web
 var bodyParser = require('body-parser'); // web body parse
 
 // Grasp objects
+// TODO: put this in config file 
 var frontEndOnly = false;
 if (frontEndOnly){
   var ReportCard = require('./mockReportCard');
@@ -73,6 +74,8 @@ var bot = new Bot(config.bot, dialogue, report_card, logger);
 var app = express();
 app.use(bodyParser.json());
 app.use("/css", express.static(__dirname + '/public/css'));
+app.use("/js", express.static(__dirname + '/public/js'));
+app.use("/svg", express.static(__dirname + '/public/svg'));
 app.use("/vendor/css", express.static(__dirname + '/vendor/css'));
 app.use("/vendor/js", express.static(__dirname + '/vendor/js'));
 app.use("/test", express.static(__dirname + '/test'));
