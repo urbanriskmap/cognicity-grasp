@@ -171,14 +171,22 @@ ReportCard.prototype = {
      }
    },
 
-   // Insert report from user (i.e. from server)
-   insertReport: function(card_id, report_object){
+   /**
+    * Insert report from user (i.e. from server) (Below fields for MVP, more to be added later)
+    * @param  {string} card_id       Unique Card Id
+    * @param {string} created_at ISO8601 timestamp tweet was created at
+    * @param  {string} text          Description of the report
+    * @param  {integer} water_depth   Water depth selected on the slider
+    * @param  {string} location      Geo coordinates in WKT format (long lat)
+    * CHECK @param  {[type]} report_object [description]
+    */
+   insertReport: function(card_id, created_at, text, water_depth, location, report_object){
 
      var self = this;
 
      self.dbQuery({
-       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
-       values: [ card_id ]
+       text: "INSERT INTO grasp_reports (card_id, created_at, text, water_depth, location) VALUES ($1, $2, $3, $4, ST_GeomFromText('POINT(' || $5 || ')',4326)) RETURNING pkey;",
+       values: [ card_id, text, water_depth, location ]
      },
      function(err, result){
 

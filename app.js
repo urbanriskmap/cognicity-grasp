@@ -75,6 +75,7 @@ app.use(bodyParser.json());
 app.use("/css", express.static(__dirname + '/public/css'));
 app.use("/vendor/css", express.static(__dirname + '/vendor/css'));
 app.use("/vendor/js", express.static(__dirname + '/vendor/js'));
+app.use("/test", express.static(__dirname + '/test'));
 // Listen for report card requests
 app.listen(3000, function(){
     logger.info('Express listening on port 3000');
