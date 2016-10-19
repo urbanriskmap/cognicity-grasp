@@ -154,7 +154,38 @@ describe( 'ReportCard', function(){
 // TODO - refactor bot tests
 // Test harness for CognicityGrasp object
 describe( 'Bot', function(){
+  var old_loggerError;
+  before(function(){
+    old_loggerError = bot.logger.error;
+    bot.logger.error = function(value){
+      console.log('Mocked logger [error]: '+value);
+    };
+  });
   // Test suite for issueCard function
+  describe( 'getsDialogue', function(){
+    it ('Falls back on default language if not found in dialogue', function(){
+      bot.config.default_language = 'en';
+      var text = {cards:{en:'card text'}};
+      test.value(bot._getDialogue(text.cards, 'de')).is('card text');
+    });
+  });
+  describe( 'cardAddress', function(){
+    it ('Catches error with card_url_prefix', function(){
+      bot.config.card_url_prefix = null;
+      bot._cardAddress(123, function(err, value){
+        test.value(err).is('[cardAddress] No card url prefix specified');
+      });
+      //test.value(bot._getDialogue(text.cards, 'de')).is('card text');
+    });
+    it ('Returns correct card address', function(){
+      bot.config.card_url_prefix = 'prefix';
+      bot._cardAddress(123, function(err, value){
+        test.value(value).is('prefix/123');
+      });
+    });
+  });
+
+  /*
   describe( 'Succesfully parse input', function(){
     var oldissueCard = bot.report_card.issueCard;
     var oldLoggerInfo = bot.logger.info;
@@ -181,5 +212,5 @@ describe( 'Bot', function(){
       bot.report_card.issueCard = oldissueCard;
       bot.logger.info = oldLoggerInfo;
     });
-  });
+  });*/
 });

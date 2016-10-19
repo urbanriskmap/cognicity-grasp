@@ -48,7 +48,7 @@ Bot.prototype = {
     */
   logger: null,
 
-    _get_dialogue: function(dialogue, language){
+    _getDialogue: function(dialogue, language){
       var self = this;
 
       if (language in dialogue === false){language = self.config.default_language;}
@@ -65,7 +65,7 @@ Bot.prototype = {
       var self = this;
       if (!self.config.card_url_prefix){
         self.logger.error('[cardAddress] No card url prefix specified');
-        return;
+        return callback('[cardAddress] No card url prefix specified', null);
       }
       else {
         callback(null, self.config.card_url_prefix+'/'+card_id);
@@ -84,7 +84,7 @@ Bot.prototype = {
 
       // local function bot text + card address
       var response = function(err, card_address){
-        callback(err, self._get_dialogue(self.dialogue.requests.card, language)+' '+card_address);
+        callback(err, self._getDialogue(self.dialogue.requests.card, language)+' '+card_address);
       };
 
       self.report_card.issueCard(username, network, language, function(err, card_id){
@@ -107,7 +107,7 @@ Bot.prototype = {
     ahoy: function(username, language, callback){
       var self = this;
 
-      callback(null, self._get_dialogue(self.dialogue.ahoy, language));
+      callback(null, self._getDialogue(self.dialogue.ahoy, language));
     },
 
     /**
@@ -121,7 +121,7 @@ Bot.prototype = {
       var self = this;
 
       var filter = words.match(self.config.regex);
-      if (filter){filter = filter[0]};
+      if (filter){filter = filter[0];}
 
       switch (filter){
         case null:
@@ -151,7 +151,7 @@ Bot.prototype = {
 
         self.report_card.watchCards(self.config.network.name, function(err, report){
           callback(err, report.username,
-                        report.username+'- '+self._get_dialogue(self.dialogue.confirmation,
+                        report.username+'- '+self._getDialogue(self.dialogue.confirmation,
                           report.language)+' https://petabencana.id/jakarta/'+report.report_id);
         });
       }
