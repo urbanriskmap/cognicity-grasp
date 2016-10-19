@@ -61,7 +61,7 @@ Bot.prototype = {
      * @param {string} card_id Unique card identifier
      * @param {function} callback Callback function for Bot response
      */
-    _cardAddress: function(card_id, callback){
+    _card_address: function(card_id, callback){
       var self = this;
       if (!self.config.card_url_prefix){
         self.logger.error('[cardAddress] No card url prefix specified');
@@ -93,7 +93,7 @@ Bot.prototype = {
           callback(err, null);
         }
         else {
-          self._cardAddress(card_id, response);
+          self._card_address(card_id, response);
         }
       });
     },
