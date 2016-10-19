@@ -8,7 +8,7 @@ var config = {
     level : 'debug'
   },
   bot : {
-    regex: /\breport|alerts\b/i,
+    regex: (/banjir|flood/gi),
     card_url_prefix: 'http://localhost:3000/report',
     network: {
       name: 'twitter'

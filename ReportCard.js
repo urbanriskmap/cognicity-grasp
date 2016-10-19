@@ -299,8 +299,9 @@ ReportCard.prototype = {
           }
          }
          catch (e){
-           self.logger.error('Error with listen notification from database\n'+e);
+           self.logger.error('Error processing listen notification from database\n'+e);
            callback(e);
+
            return;
          }
        });

@@ -1,13 +1,17 @@
 var dialogue = {
-  en: {
-    intro: "Hello, I am the PetaBencana.id Bot. To send me your flood report, say '#report'",
-    report: "Here's a link to your unique flood report ",
-    received: "Thanks for your flood report, I've put it on the map https://petabencana.id"
+  ahoy: {
+    en: "Hello, I am Bencana Bot, reply with #flood to send me your flood report.",
+    id: "Hello, I am Bencana Bot, reply with #banjir to send me your flood report."
   },
-  id: {
-    intro: "Hello, I am the PetaBencana.id Banjir Bot. To send me your flood report, say '#report'",
-    report: "Here's a link to your unique flood report ",
-    received: "Thanks for your flood report, I've put it on the map https://petabencana.id"
+  requests: {
+    card : {
+      en: 'Hello, please send me your flood report using this link ',
+      id: 'Hello, please send me your flood report using this link'
+    }
+  },
+  confirmation: {
+    en: "Hello, thanks for your report. I've put it on the map",
+    id: "Hello, thanks for your report. I've put it on the map"
   }
 };
 
