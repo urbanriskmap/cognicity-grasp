@@ -120,7 +120,7 @@ Bot.prototype = {
     parseRequest: function(username, words, language, callback){
       var self = this;
 
-      var filter = words.match(self.config.regex);
+      var filter = words.match(/banjir|flood/gi);
       if (filter){filter = filter[0];}
 
       switch (filter){
