@@ -151,14 +151,22 @@ describe( 'ReportCard', function(){
   });
 });
 
-// TODO - refactor bot tests
+// TODO test for confirm method
 // Test harness for CognicityGrasp object
 describe( 'Bot', function(){
-  var old_loggerError;
+  var old_loggerError, old_loggerInfo, old_bot_requestCard;
   before(function(){
     old_loggerError = bot.logger.error;
     bot.logger.error = function(value){
       console.log('Mocked logger [error]: '+value);
+    };
+    old_loggerInfo = bot.logger.info;
+    bot.logger.info = function(value){
+      console.log('Mocked logger [error]: '+value);
+    };
+    old_bot_requestCard = bot._requestCard;
+    bot._requestCard = function(username, network, language, callback){
+      return callback(null, 'Correct response');
     };
   });
   // Test suite for issueCard function
@@ -175,7 +183,6 @@ describe( 'Bot', function(){
       bot._cardAddress(123, function(err, value){
         test.value(err).is('[cardAddress] No card url prefix specified');
       });
-      //test.value(bot._getDialogue(text.cards, 'de')).is('card text');
     });
     it ('Returns correct card address', function(){
       bot.config.card_url_prefix = 'prefix';
@@ -184,33 +191,25 @@ describe( 'Bot', function(){
       });
     });
   });
-
-  /*
-  describe( 'Succesfully parse input', function(){
-    var oldissueCard = bot.report_card.issueCard;
-    var oldLoggerInfo = bot.logger.info;
-    var report_card_return_value;
-    var loggerValue;
-    before (function(){
-      bot.report_card.issueCard = function(callback){
-        report_card_return_value = 0;
-      };
-      bot.logger.info = function(message){
-        loggerValue = message;
-      };
+  describe ( ' parseRequest ', function(){
+    it ('detects no keywords, and calls ahoy', function(){
+      bot.parseRequest('user', 'no keywords here', 'en', function(err, value){
+          test.value(value).is(bot.dialogue.ahoy.en);
+      });
     });
-    it ('No card requested if keyword not found', function(){
-      bot.parse('user', 'spam', 'en', function(){});
-      test.value(loggerValue).is('Bot could not detect a keyword');
+    it ('Detects "banjir" and returns correct response', function(){
+      bot.parseRequest('user', 'banjir', 'en', function(err, value){
+        test.value(value).is('Correct response');
+      });
     });
-    it ( 'Detects keyword, and requests card', function(){
-      bot.parse('user', 'report', 'en', function(){});
-      test.value(report_card_return_value).is(0);
-      test.value(loggerValue).is('Bot requesting issue of card');
+    it ('Detects "flood" and returns correct response', function(){
+      bot.parseRequest('user', 'banjir', 'en', function(err, value){
+        test.value(value).is('Correct response');
+      });
     });
-    after (function(){
-      bot.report_card.issueCard = oldissueCard;
-      bot.logger.info = oldLoggerInfo;
-    });
-  });*/
+  });
+  after(function(){
+    bot.logger.error = old_loggerError;
+    bot.logger.info = old_loggerInfo;
+  });
 });
