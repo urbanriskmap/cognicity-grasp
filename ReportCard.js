@@ -2,6 +2,7 @@
 
 // Node requirements
 var shortid = require('shortid');
+var string = require('string');
 
 /**
  * A ReportCard object manages requests and receiepts of user reports
@@ -174,38 +175,68 @@ ReportCard.prototype = {
    /**
     * Insert report from user (i.e. from server) (Below fields for MVP, more to be added later)
     * @param  {string} card_id       Unique Card Id
-    * @param {string} created_at ISO8601 timestamp tweet was created at
-    * @param  {string} text          Description of the report
-    * @param  {integer} water_depth   Water depth selected on the slider
     * @param  {string} location      Geo coordinates in WKT format (long lat)
-    * CHECK @param  {[type]} report_object [description]
+    * @param  {string} water_depth   Water depth selected on the slider
+    * @param  {string} text          Description of the report
     */
-   insertReport: function(card_id, created_at, text, water_depth, location, report_object){
-
+   insertReport: function(card_id, location, water_depth, text, callback){
      var self = this;
+     self.logger.info("Got insert report call to Reportcard");
 
-     self.dbQuery({
-       text: "INSERT INTO grasp_reports (card_id, created_at, text, water_depth, location) VALUES ($1, $2, $3, $4, ST_GeomFromText('POINT(' || $5 || ')',4326)) RETURNING pkey;",
-       values: [ card_id, text, water_depth, location ]
-     },
-     function(err, result){
-
-       self.dbQuery(
-         {
-         text: "UPDATE grasp_cards SET received = TRUE WHERE card_id = $1",
-         values: [ card_id ]
-        },
-          function(err, result){
-            console.log('updated card');
+     if(shortid.isValid(card_id) && !string(location).isEmpty() && !string(water_depth).isEmpty() && !string(text).isEmpty()) {
+       self.dbQuery({
+         text: "INSERT INTO grasp_reports (card_id, location, water_depth, text, status) VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5) RETURNING pkey;",
+         values: [ card_id, location, water_depth, text, "Confirmed" ]
+       },
+         function(insertReportError, insertReportResult){
+           if (insertReportError){
+             self.logger.error(insertReportError);
+             callback(insertReportError, null);
+           }
+           else {
+             self.logger.info('Inserted report successfully for card_id: ' + card_id);
+             self.dbQuery({
+               text: "UPDATE grasp_cards SET received = TRUE WHERE card_id = $1",
+               values: [ card_id ]
+              },
+                function(updateCardStatusError, updateCardStatusResult){
+                  if (updateCardStatusError){
+                    self.logger.error(updateCardStatusError);
+                    callback(updateCardStatusError, null);
+                  }
+                  else {                    
+                    self.logger.info('Updated card status of cardId ' + card_id + ' as received');
+                    callback(updateCardStatusError, insertReportResult[0].pkey);
+                  }
+                }
+              );
+            }
+            //TODO update log table
+            //TODO update log files
           }
         );
-
-       //update card table
-       //update log table
-       //update log files
      }
-   );
+     else {
+       self.logger.info('Invalid input received');
+       callback(null, {received : 'invalid'});
+     }
    },
+
+  //  getAllReports: function(callback){
+  //    var self = this;
+  //    self.dbQuery({
+  //      text: "SELECT * FROM grasp_reports;",
+  //      values: [ card_id, location, water_depth, text ]
+  //    },
+  //    function(err, result){
+  //      if (err){
+  //        self.logger.error(err);
+  //        callback(err, null);
+  //      }
+  //      else {
+   //
+  //      }
+  //  },
 
    // Watch table
    watchCards: function(network, callback){

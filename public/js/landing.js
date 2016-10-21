@@ -79,6 +79,21 @@ $(document).ready(function(){
 
 }); //close document.ready event
 
+function _ajax_request(url, data, callback, method) {
+    return jQuery.ajax({
+        dataType: "json",
+        contentType: "application/json",
+        url: url,
+        type: method,
+        data: JSON.stringify(data),
+        success: callback
+    });
+}
+
+jQuery.extend({
+    put: function(url, data, callback) {
+        return _ajax_request(url, data, callback, 'PUT');
+}});
 
 // ***CARD 1*** get/set location
 $('#contentCard1').on('launch', function () {
@@ -153,7 +168,7 @@ $('#contentCard1').on('launch', function () {
     $('#resetLocation').prop('disabled', false);
     $('#next').prop('disabled', false);
 
-    cardVal[0] = ''+gpsLocation+'';
+    cardVal[0] = gpsLocation.lng + " " + gpsLocation.lat;
   });
 
   //Geolocate error function
@@ -196,7 +211,7 @@ $('#contentCard1').on('launch', function () {
     $('#setLocation').prop('disabled', true);
     $('#next').prop('disabled', false);
 
-    cardVal[0] = ''+center+'';
+    cardVal[0] = center.lng + " " + center.lat;
   });
 
   $('#resetLocation').click(function() {
@@ -206,7 +221,6 @@ $('#contentCard1').on('launch', function () {
     $('#resetLocation').prop('disabled', true);
   });
 });
-
 
 // ***CARD 2*** set height
 $('#contentCard2').one('launch', function () {
@@ -259,7 +273,6 @@ $('#contentCard2').one('launch', function () {
   });
 });
 
-
 // ***CARD 3*** enter description
 $('#contentCard3').on('launch', function () {
   var charLength = $('#descripText').val().length;
@@ -282,7 +295,6 @@ $('#contentCard3').on('launch', function () {
   });
 });
 
-
 // ***CARD 4*** summary
 $('#contentCard4').on('launch', function () {
   $('#getVal').click(function() {
@@ -300,4 +312,13 @@ $('#contentCard4').on('launch', function () {
       $('#comment').html('No description provided');
     }
   });
+
+  $('#submitButton').click(function(){
+    var card_id = window.location.pathname.split('/').pop();
+    $.put('http://localhost:3000/report/' + card_id,
+      {location: cardVal[0],
+        water_depth: cardVal[1],
+        text: cardVal[2] }, function(result) {
+    });
+  })
 });
