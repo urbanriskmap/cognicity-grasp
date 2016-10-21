@@ -16,7 +16,7 @@ var cardVal = ['Location not selected','Default height','No description provided
 $(document).ready(function(){
 
   //Dot markers (tabs) tracking report progress
-  for (i = 1; i <= noOfCards; i++) {
+  for (var i = 1; i <= noOfCards; i++) {
     $('#tabTracker').append(
       $('<button/>').attr({ //TODO: this is better done with id's or classes instead of searching through html 
         class: 'tabBtn',
@@ -318,10 +318,11 @@ $('#contentCard4').on('launch', function () {
 
   $('#submitButton').click(function(){
     var card_id = window.location.pathname.split('/').pop();
-    $.put('http://localhost:3000/report/' + card_id,
+    $.put('/report/' + card_id,
       {location: cardVal[0],
         water_depth: cardVal[1],
         text: cardVal[2] }, function(result) {
     });
+    window.location.replace('/'); 
   });
 });
