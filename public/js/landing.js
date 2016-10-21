@@ -95,6 +95,11 @@ jQuery.extend({
         return _ajax_request(url, data, callback, 'PUT');
 }});
 
+jQuery.extend({
+    get: function(url, data, callback) {
+            return _ajax_request(url, data, callback, 'GET');
+}});
+
 // ***CARD 1*** get/set location
 $('#contentCard1').on('launch', function () {
     var cardmap = L.map('cardMapWrapper');
@@ -315,10 +320,24 @@ $('#contentCard4').on('launch', function () {
 
   $('#submitButton').click(function(){
     var card_id = window.location.pathname.split('/').pop();
+    console.log("ISO Date: " + new Date().toISOString());
     $.put('http://localhost:3000/report/' + card_id,
       {location: cardVal[0],
         water_depth: cardVal[1],
-        text: cardVal[2] }, function(result) {
+        text: cardVal[2],
+        created_at: new Date().toISOString()}, function(putResult) {
+          console.log('Report ID json: ' + putResult);
+          if(putResult > 0){
+              console.log('Making getAllReports call');
+              $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function(getResult){
+                if(getResult.statusCode == 200){
+                  console.log('getAllReports call successful');
+                }
+                else {
+                  console.log('getAllReports call failed');
+                }
+              })
+          }
     });
   })
 });

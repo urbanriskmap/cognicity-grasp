@@ -12,7 +12,7 @@ module.exports = function(app, report_card, logger) {
       }
       if (cardStatus.received === false){
         logger.debug('[/report/:card_id] Report submission for card '+ req.params.card_id);
-        report_card.insertReport(req.params.card_id, req.body.location.toString(), req.body.water_depth, req.body.text, function(insertReportError, insertReportResult){
+        report_card.insertReport(req.body.created_at, req.params.card_id, req.body.location.toString(), req.body.water_depth, req.body.text, function(insertReportError, insertReportResult){
           if(insertReportError) {
             res.send('Error - Insert report failed');
             logger.debug('[/report/:card_id] Report submission for card: ' + req.params.card_id + ' failed');
@@ -23,7 +23,8 @@ module.exports = function(app, report_card, logger) {
           }
           else {
             logger.debug('[/report/:card_id] Report submission successful. Report id: ' + insertReportResult);
-            res.sendStatus(200);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(insertReportResult);
           }
         });
       }
@@ -51,6 +52,21 @@ module.exports = function(app, report_card, logger) {
       else if (result.received === true){
         res.send('Error - report already received');
         logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- already received');
+      }
+    });
+  });
+
+  app.get('/report/confirmedReports/:id', function(req, res){
+    logger.debug('[/report/confirmedReports/:id] In GetAllReports API');
+    report_card.getAllReports(function(getAllReportsError, getAllReportsResult){
+      if(getAllReportsError) {
+        res.send('Error - Get all reports failed');
+        logger.debug('[/report/confirmedReports/:id] Get all reports failed');
+      }
+      else {
+        logger.debug('[/report/confirmedReports/:id] Report fetch successful');
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send(getAllReportsResult);
       }
     });
   });

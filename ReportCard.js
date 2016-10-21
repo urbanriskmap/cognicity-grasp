@@ -174,19 +174,20 @@ ReportCard.prototype = {
 
    /**
     * Insert report from user (i.e. from server) (Below fields for MVP, more to be added later)
+    * @param  {string} created_at    ISO8601 format date string
     * @param  {string} card_id       Unique Card Id
     * @param  {string} location      Geo coordinates in WKT format (long lat)
     * @param  {string} water_depth   Water depth selected on the slider
     * @param  {string} text          Description of the report
     */
-   insertReport: function(card_id, location, water_depth, text, callback){
+   insertReport: function(created_at, card_id, location, water_depth, text, callback){
      var self = this;
      self.logger.info("Got insert report call to Reportcard");
 
-     if(shortid.isValid(card_id) && !string(location).isEmpty() && !string(water_depth).isEmpty() && !string(text).isEmpty()) {
+     if(shortid.isValid(card_id) && !string(created_at).isEmpty() && !string(location).isEmpty() && !string(water_depth).isEmpty() && !string(text).isEmpty()) {
        self.dbQuery({
-         text: "INSERT INTO grasp_reports (card_id, location, water_depth, text, status) VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5) RETURNING pkey;",
-         values: [ card_id, location, water_depth, text, "Confirmed" ]
+         text: "INSERT INTO grasp_reports (card_id, location, water_depth, text, created_at, status) VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5, $6) RETURNING pkey;",
+         values: [ card_id, location, water_depth, text, created_at, "Confirmed" ]
        },
          function(insertReportError, insertReportResult){
            if (insertReportError){
@@ -204,7 +205,7 @@ ReportCard.prototype = {
                     self.logger.error(updateCardStatusError);
                     callback(updateCardStatusError, null);
                   }
-                  else {                    
+                  else {
                     self.logger.info('Updated card status of cardId ' + card_id + ' as received');
                     callback(updateCardStatusError, insertReportResult[0].pkey);
                   }
@@ -222,21 +223,23 @@ ReportCard.prototype = {
      }
    },
 
-  //  getAllReports: function(callback){
-  //    var self = this;
-  //    self.dbQuery({
-  //      text: "SELECT * FROM grasp_reports;",
-  //      values: [ card_id, location, water_depth, text ]
-  //    },
-  //    function(err, result){
-  //      if (err){
-  //        self.logger.error(err);
-  //        callback(err, null);
-  //      }
-  //      else {
-   //
-  //      }
-  //  },
+   getAllReports: function(callback){
+     var self = this;
+     self.dbQuery({
+       //text: "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.location)::json As geometry, row_to_json((SELECT l FROM (SELECT pkey, card_id, text, water_depth, status) As l)) As properties FROM grasp_reports As lg   ) As f )  As fc;"
+       text: "SELECT * FROM GRASP_REPORTS;"
+     },
+     function(getAllReportsError, getAllReportsResult){
+       if (getAllReportsError){
+         self.logger.error(getAllReportsError);
+         callback(getAllReportsError, null);
+       }
+       else {
+         self.logger.info('getAllReports call successful; returning results');
+         callback(getAllReportsError, getAllReportsResult);
+       }
+     });
+   },
 
    // Watch table
    watchCards: function(network, callback){
