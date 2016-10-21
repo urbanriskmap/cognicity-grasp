@@ -1,3 +1,4 @@
+'use strict'; 
 /*
 var map = L.map('baseMap');
 L.tileLayer('https://api.mapbox.com/styles/v1/mayankojha/ciu43n5ge00bj2ilfv9vazp2e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWF5YW5rb2poYSIsImEiOiJfeGl3Y01jIn0.Z3VjUlCe-W63PLsPzY_7Cw', {
@@ -17,27 +18,27 @@ $(document).ready(function(){
   //Dot markers (tabs) tracking report progress
   for (i = 1; i <= noOfCards; i++) {
     $('#tabTracker').append(
-      $('<button/>').attr({
+      $('<button/>').attr({ //TODO: this is better done with id's or classes instead of searching through html 
         class: 'tabBtn',
         id: 'tab' + i
       })
     );
-    if (i==cardTracker) {
-      $('#tab'+i).css({
+    if (i === cardTracker) {
+      $('#tab'+i).css({ //TODO: this is better done by doing a static css file 
         'background-color': '#80cbc4',
         'border-color': 'white'
       });
     }
   }
 
-  $.fn.showCard = function(cardNo) {
+  $.fn.showCard = function(cardNo) { //TODO: adding functions to someone else's library is a bit iffy 
     $('.cardInner').siblings().hide();
     $(this).show();
     $('#cardTitle').html(titleStrings[cardNo - 1]);
   };
 
   $('#next').click(function() {
-    if (cardTracker==1) {
+    if (cardTracker === 1) {
       $('#prev').prop('disabled', false);
     }
     cardTracker = cardTracker + 1;
@@ -47,13 +48,13 @@ $(document).ready(function(){
       'background-color': '#80cbc4',
       'border-color': 'white'
     });
-    if (cardTracker==noOfCards) {
+    if (cardTracker === noOfCards) {
       $(this).prop('disabled', true);
     }
   });
 
   $('#prev').click(function() {
-    if (cardTracker==noOfCards) {
+    if (cardTracker === noOfCards) {
       $('#next').prop('disabled', false);
     }
     $('#tab'+cardTracker).css({
@@ -62,7 +63,7 @@ $(document).ready(function(){
     });
     cardTracker = cardTracker - 1;
     $('#contentCard'+cardTracker).showCard(cardTracker);
-    if (cardTracker==1) {
+    if (cardTracker === 1) {
       $(this).prop('disabled', true);
     }
   });
@@ -79,7 +80,7 @@ $(document).ready(function(){
 
 }); //close document.ready event
 
-function _ajax_request(url, data, callback, method) {
+function _ajax_request(url, data, callback, method) { //TODO: jquery already has this: $.put() is what I think you want
     return jQuery.ajax({
         dataType: "json",
         contentType: "application/json",
@@ -92,12 +93,13 @@ function _ajax_request(url, data, callback, method) {
 
 jQuery.extend({
     put: function(url, data, callback) {
-        return _ajax_request(url, data, callback, 'PUT');
+        return _ajax_request(url, data, callback, 'PUT'); //TODO: see above 
 }});
 
 // ***CARD 1*** get/set location
 $('#contentCard1').on('launch', function () {
     var cardmap = L.map('cardMapWrapper');
+    //TODO: this is super slow (at least on my machine, unclear if we can make faster 
 
     L.tileLayer('https://api.mapbox.com/styles/v1/mayankojha/ciu43n5ge00bj2ilfv9vazp2e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWF5YW5rb2poYSIsImEiOiJfeGl3Y01jIn0.Z3VjUlCe-W63PLsPzY_7Cw', {
       attribution: 'Map data &copy; <a href="http://openstreetmap.org">OSM</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA</a>, Imagery &copy; <a href="http://mapbox.com">Mapbox</a>',
@@ -108,7 +110,7 @@ $('#contentCard1').on('launch', function () {
     cardmap.locate({
       setView: true,
       zoom: 14,
-      //maxBounds: boundsC
+      //maxBounds: boundsC //TODO: get rid of commented code
     });
 
     var geolocated = false;
@@ -126,6 +128,7 @@ $('#contentCard1').on('launch', function () {
     $('#resetLocation').prop('disabled', true);
     $('#next').prop('disabled', true);
 
+//TODO: get rid of commented code
   /*
   var boundsJ = [
   // Jakarta
@@ -168,7 +171,7 @@ $('#contentCard1').on('launch', function () {
     $('#resetLocation').prop('disabled', false);
     $('#next').prop('disabled', false);
 
-    cardVal[0] = gpsLocation.lng + " " + gpsLocation.lat;
+    cardVal[0] = gpsLocation.lng + " " + gpsLocation.lat; //TODO: what is this doing? it seems sketchy- Really really sketchy
   });
 
   //Geolocate error function
@@ -193,7 +196,7 @@ $('#contentCard1').on('launch', function () {
   cardmap.on('move', function() {
     center = cardmap.getCenter();
     $('#setLocation').prop('disabled', false);
-    if (geolocated && center!=gpsLocation) {
+    if (geolocated && center !== gpsLocation) { //TODO: this is really unclear-
       $('#resetLocation').prop('disabled', false);
     }
   });
@@ -277,7 +280,7 @@ $('#contentCard2').one('launch', function () {
 $('#contentCard3').on('launch', function () {
   var charLength = $('#descripText').val().length;
 
-  if (charLength == 0) {
+  if (charLength === 0) {
     $('#descripText').val("Enter text here...");
 
     $('#descripText').one('focus', function() { //jQuery alt for {once: true}
@@ -320,5 +323,5 @@ $('#contentCard4').on('launch', function () {
         water_depth: cardVal[1],
         text: cardVal[2] }, function(result) {
     });
-  })
+  });
 });

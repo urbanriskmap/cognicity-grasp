@@ -73,6 +73,8 @@ var bot = new Bot(config.bot, dialogue, report_card, logger);
 // Configure example server user express
 var app = express();
 app.use(bodyParser.json());
+
+app.use("/", express.static(__dirname + '/public/')); 
 app.use("/css", express.static(__dirname + '/public/css'));
 app.use("/js", express.static(__dirname + '/public/js'));
 app.use("/svg", express.static(__dirname + '/public/svg'));
