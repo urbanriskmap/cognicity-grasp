@@ -195,7 +195,7 @@ $('#contentCard1').on('launch', function () {
     cardmap.on('move', function () {
         center = cardmap.getCenter();
         $('#setLocation').prop('disabled', false);
-        if (geolocated && center != gpsLocation) {
+        if (geolocated && center !== gpsLocation) { //TODO: this is really unclear-
             $('#resetLocation').prop('disabled', false);
         }
     });
