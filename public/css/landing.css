@@ -210,12 +210,10 @@
   z-index: 14;
 }
 
-/*
 #sliderKnob:active {
   background-color: #9bbcb9;
   box-shadow: none;
 }
-*/
 
 #hideZone {
   position: relative;

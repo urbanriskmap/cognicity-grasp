@@ -10,7 +10,7 @@ map.setView([-6.2, 106.83], 14);
 var titleStrings = ['Select Location', 'Report Height of Flooding', 'Add Description', 'Review & Submit', 'Terms & Conditions', 'Report Submitted'];
 var noOfCards = titleStrings.length - 2; //User input cards only; exclude Terms&Conditions and Thank you cards
 var cardTracker = 0;
-var reportParams = {}; //Object collecting user input
+var reportParams = {location: null, height: null, description: null}; //Object collecting user input
 
 $(document).ready(function () {
 
@@ -249,12 +249,12 @@ $('#contentCard1').one('launch', function () { //launch once
   $('#hText').html(heightInCm + 'cm');
   reportParams.height = heightInCm;
 
-  //Working pc browser function; no touch
-  $('#sliderKnob').on('touchstart', function (e) {
+  //Working desktop browser function; TODO touch functionality for phone
+  $('#sliderKnob').on('touchstart mousedown', function (e) {
     startPos = e.originalEvent.pageY;
     pressed = true;
   });
-  $('#cardFrame').on('touchmove', function (e) {
+  $('#cardFrame').on('touchmove mousemove', function (e) {
     e.preventDefault();
     dragPos = e.originalEvent.pageY;
     heightInCm = Math.round(((fillH + (startPos - dragPos)) * imgH) / refH);
@@ -273,7 +273,7 @@ $('#contentCard1').one('launch', function () { //launch once
       }
     }
   });
-  $(document).on('touchend', function () {
+  $(document).on('touchend mouseup', function () {
     if (pressed) {
       pressed = false;
       translateVar = -12 + $('#sliderKnob').offset().top - initOff;
@@ -291,18 +291,18 @@ $('#contentCard2').on('launch', function () {
     $('#descripText').val("Enter text here...");
 
     $('#descripText').one('focus', function () { //jQuery alt for fn () {arg, {once: true}}
-    $(this).val("");
-  });
-}
-
-$('#descripText').keyup(function () { //TODO: check compatibility of keyup with phone browser input keyboards
-  charLength = $(this).val().length;
-  $('#charRef').text(charLength + "/140");
-
-  if (charLength > 0) {             //will give true for default text also, check...
-    reportParams.description = $('#descripText').val();
+      $(this).val("");
+    });
   }
-});
+
+  $('#descripText').keyup(function () { //TODO: check compatibility of keyup with phone browser input keyboards
+    charLength = $(this).val().length;
+    $('#charRef').text(charLength + "/140");
+
+    if (charLength > 0) {             //will give true for default text also, check...
+      reportParams.description = $('#descripText').val();
+    }
+  });
 });
 
 
