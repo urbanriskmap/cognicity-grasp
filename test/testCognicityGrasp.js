@@ -148,8 +148,29 @@ describe( 'ReportCard', function(){
         test.value(value).is(null);
       });
     });
+
   });
 });
+
+describe( 'Report Card with real db backing', function(){
+  var pg = require('pg'); 
+  var config = require('../sample-grasp-config'); 
+  var mockReportCard = require('../ReportCard'); 
+  mockReportCard = new mockReportCard(config, pg, {}); 
+  mockReportCard._generate_id = function(){
+    return 'testtest'; 
+  }; 
+  before( 'clear the database', function(done){
+    pg.query("DELETE FROM * WHERE card_id = 'testtest';"); 
+    done(); 
+  }); 
+
+  it( 'check issue card', function(){
+    mockReportCard.issueCard('testUsername'); 
+  }); 
+
+  
+}); 
 
 // TODO test for confirm method
 // Test harness for CognicityGrasp object
