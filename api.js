@@ -1,5 +1,7 @@
 'use strict';
 
+var topojson = require('topojson');
+
 // Example of card validation by HTTP server
 module.exports = function(app, report_card, logger) {
 
@@ -58,15 +60,20 @@ module.exports = function(app, report_card, logger) {
 
   app.get('/report/confirmedReports/:id', function(req, res){
     logger.debug('[/report/confirmedReports/:id] In GetAllReports API');
-    report_card.getAllReports(function(getAllReportsError, getAllReportsResult){
-      if(getAllReportsError) {
+    report_card.getAllReports(function(error, result){
+      if(error) {
         res.send('Error - Get all reports failed');
         logger.debug('[/report/confirmedReports/:id] Get all reports failed');
       }
       else {
         logger.debug('[/report/confirmedReports/:id] Report fetch successful');
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(getAllReportsResult);
+        var topology = topojson.topology({collection:result[0]},{"property-transform":function(object){return object.properties;}});
+        var responseData = {};
+    		responseData.code = 200;
+    		responseData.headers = {"Content-type":"application/json"};
+    		responseData.body = JSON.stringify(topology, "utf8");
+        res.writeHead(responseData.code, responseData.headers);
+      	res.end(responseData.body);
       }
     });
   });

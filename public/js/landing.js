@@ -268,7 +268,7 @@ $('#contentCard2').one('launch', function () { //launch once
                 'background-color': 'rgba(128, 203, 196, ' + (0.1 + (HeightInCM / imgH) * 0.65) + ')' //Opacity range 0.1 to 0.75
             });
 
-            for (i = 0; i < stringH.length; i = i + 1) {
+            for (var i = 0; i < stringH.length; i = i + 1) {
                 if (HeightInCM > thresholdH[i] && HeightInCM <= thresholdH[i + 1]) {
                     $('#hText').html(stringH[i] + ', ' + HeightInCM + 'cm');
                 }
@@ -356,19 +356,19 @@ $('#contentCard4').on('launch', function () {
                   {location: cardVal[0],
                     water_depth: cardVal[1],
                     text: cardVal[2],
-                    created_at: new Date().toISOString()}, function(putResult) {
-                      console.log('Report ID json: ' + putResult);
-                      if(putResult > 0){
-                          console.log('Making getAllReports call');
-                          $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function(getResult){
-                            if(getResult.statusCode == 200){
-                              console.log('getAllReports call successful');
-                            }
-                            else {
-                              console.log('getAllReports call failed');
-                            }
-                          })
-                      }
+                    created_at: new Date().toISOString()}, function(result) {
+                      console.log('Report ID json: ' + result);
+                      // if(result > 0){
+                      //     console.log('Making getAllReports call');
+                      //     $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function(result){
+                      //       if(result.statusCode == 200){
+                      //         console.log('getAllReports call successful');
+                      //       }
+                      //       else {
+                      //         console.log('getAllReports call failed');
+                      //       }
+                      //     })
+                      // }
                 });
                 window.location.replace('/');
                 cardTracker = cardTracker + 1;

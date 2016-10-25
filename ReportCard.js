@@ -225,18 +225,32 @@ ReportCard.prototype = {
 
    getAllReports: function(callback){
      var self = this;
-     self.dbQuery({
-       //text: "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.location)::json As geometry, row_to_json((SELECT l FROM (SELECT pkey, card_id, text, water_depth, status) As l)) As properties FROM grasp_reports As lg   ) As f )  As fc;"
-       text: "SELECT * FROM GRASP_REPORTS;"
-     },
-     function(getAllReportsError, getAllReportsResult){
-       if (getAllReportsError){
-         self.logger.error(getAllReportsError);
-         callback(getAllReportsError, null);
+     var queryObject = {
+ 			text: "SELECT 'FeatureCollection' As type, " +
+ 					"array_to_json(array_agg(f)) As features " +
+ 				"FROM (SELECT 'Feature' As type, " +
+ 					"ST_AsGeoJSON(lg.location)::json As geometry, " +
+ 					"row_to_json( " +
+ 						"(SELECT l FROM " +
+ 							"(SELECT pkey, " +
+ 							"created_at at time zone 'EDT' created_at, " +
+ 							"status, " +
+              "text, " +
+              "water_depth) " +
+ 						" As l) " +
+ 					") As properties " +
+ 					"FROM grasp_reports As lg " +
+ 				" ) As f ;",
+ 		 };
+     self.dbQuery(queryObject,
+     function(error, result){
+       if (error){
+         self.logger.error(error);
+         callback(error, null);
        }
        else {
          self.logger.info('getAllReports call successful; returning results');
-         callback(getAllReportsError, getAllReportsResult);
+         callback(error, result);
        }
      });
    },
