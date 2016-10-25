@@ -19,7 +19,7 @@ module.exports = function(app, report_card, logger) {
             res.send('Error - Insert report failed');
             logger.debug('[/report/:card_id] Report submission for card: ' + req.params.card_id + ' failed');
           }
-          else if(insertReportResult.received == 'invalid'){
+          else if(insertReportResult.received === 'invalid'){
             res.send('Error - invalid input');
             logger.debug('[/report/:card_id] Invalid input sent for card: '+ req.params.card_id);
           }
@@ -35,9 +35,6 @@ module.exports = function(app, report_card, logger) {
         logger.debug('[/report/:card_id] Report for card: '+req.params.card_id+ ' already received');
       }
     });
-    // **To Do**
-    // now put this in the database as a confirmed report, returning report ID
-    // Thanks for your report, see your report on the map at map/123
   });
 
   app.get('/report/:card_id', function(req, res, next){

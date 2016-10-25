@@ -27,17 +27,19 @@ CREATE EXTENSION postgis_topology;
 --Table grasp_card_id (card_id, received[true/false])
 CREATE TABLE grasp_cards (
   pkey bigserial NOT NULL,
-  card_id varchar NOT NULL,
+  card_id varchar NOT NULL UNIQUE,
   username varchar NOT NULL,
   network varchar NOT NULL,
+  language varchar NOT NULL,
   received boolean,
+  report_id bigint UNIQUE,
   CONSTRAINT pkey_grasp_cards PRIMARY KEY (pkey)
 );
 
 --Table grasp_reports
 CREATE TABLE grasp_reports (
   pkey bigserial NOT NULL,
-  card_id varchar NOT NULL,
+  card_id varchar NOT NULL UNIQUE,
   database_time timestamp with time zone DEFAULT now(),
   created_at timestamp with time zone,
   text varchar,
@@ -67,3 +69,18 @@ CREATE TABLE grasp_log (
   event_type varchar,
   CONSTRAINT pkey_grasp_log PRIMARY KEY (pkey)
 );
+
+--Notifications on  grasp cards table updates
+CREATE FUNCTION notify_grasp_cards_trigger() RETURNS trigger AS $$
+DECLARE
+BEGIN
+  PERFORM pg_notify('watchers', '{"' || TG_TABLE_NAME || '":{"pkey":"' || NEW.pkey || '", "username": "'|| NEW.username ||'", "network": "' || NEW.network || '", "language": "'|| NEW.language ||'", "report_id": "' || NEW.report_id || '"}}' );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER watch_grasp_cards_trigger
+  AFTER UPDATE ON grasp_cards
+  FOR EACH ROW
+  WHEN (NEW.received = TRUE)
+  EXECUTE PROCEDURE notify_grasp_cards_trigger();

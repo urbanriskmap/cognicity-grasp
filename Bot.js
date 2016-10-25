@@ -1,11 +1,5 @@
 'use strict';
 
-// Human keywords/endpoints
-// 1) Report
-// 2) Alerts
-// 3) Subscribe
-// 4) Unsubscribe
-
 /**
  * A bot object manages conversation with users
  * @constructor
@@ -54,15 +48,24 @@ Bot.prototype = {
     */
   logger: null,
 
-    /**
-    Function to create full one-time link (URL) address for card
-    */
+    _getDialogue: function(dialogue, language){
+      var self = this;
 
-    cardAddress: function(card_id, callback){
+      if (language in dialogue === false){language = self.config.default_language;}
+
+      return (dialogue[language]);
+    },
+
+    /**
+     * Function to create one time link address for report card_id
+     * @param {string} card_id Unique card identifier
+     * @param {function} callback Callback function for Bot response
+     */
+    _cardAddress: function(card_id, callback){
       var self = this;
       if (!self.config.card_url_prefix){
         self.logger.error('[cardAddress] No card url prefix specified');
-        return;
+        return callback('[cardAddress] No card url prefix specified', null);
       }
       else {
         callback(null, self.config.card_url_prefix+'/'+card_id);
@@ -70,49 +73,93 @@ Bot.prototype = {
     },
 
     /**
-     * Function to parse user input and provide response based on keyword detection
+     * Function to request report card and return appropriate bot response
      * @param {string} username Unique username e.g. @twitter
-     * @param {string} network User social messaging network e.g. twitter
      * @param {string} words Text string containing user input
      * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
      * @param {function} callback Callback function for Bot response
      */
-    parse: function(username, words, language, callback){
+    _requestCard: function(username, network, language, callback){
       var self = this;
-      if (language in self.dialogue === false){language = self.config.default_language;}
-      switch (words.match(self.config.regex)){
-        case  null:
-          self.logger.info('Bot could not detect a keyword');
-          callback(null, self.dialogue[language].intro);
-          break;
-        default:
-          self.logger.info('Bot requesting issue of card');
-          self.report_card.issueCard(username, self.config.network.name, function(err, card_id){
-            if (err){
-              self.logger.error('Bot encoutered error requesting card');
-              return;
-            }
-            else {
-              self.cardAddress(card_id, function(err, card_address){
-                callback(err, self.dialogue[language].report+card_address);
-              });
-            }
-          });
-          break;
-        }
-      },
 
-      // received report
-      received: function(callback){
+      // local function bot text + card address
+      var response = function(err, card_address){
+        callback(err, self._getDialogue(self.dialogue.requests.card, language)+' '+card_address);
+      };
+
+      self.report_card.issueCard(username, network, language, function(err, card_id){
+        if (err){
+          self.logger.error('Bot encoutered error requesting card');
+          callback(err, null);
+        }
+        else {
+          self._cardAddress(card_id, response);
+        }
+      });
+    },
+
+    /**
+     * Function to generate default bot response
+     * @param {string} username Unique username e.g. @twitter
+     * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
+     * @param {function} callback Callback function for Bot response
+     */
+    ahoy: function(username, language, callback){
+      var self = this;
+
+      callback(null, self._getDialogue(self.dialogue.ahoy, language));
+    },
+
+    /**
+     * Function to parse user input and provide response based on keyword detection
+     * @param {string} username Unique username e.g. @twitter
+     * @param {string} words Text string containing user input
+     * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
+     * @param {function} callback Callback function for Bot response
+     */
+    parseRequest: function(username, words, language, callback){
+      var self = this;
+
+      var filter = words.match(/banjir|flood/gi);
+      if (filter){filter = filter[0];}
+
+      switch (filter){
+        case null:
+          self.logger.info('Bot could not detect request keyword');
+          self.ahoy(username, language, callback); // Respond with default
+          break;
+
+        case 'banjir':
+          self.logger.info('Bot detected request keyword "banjir"');
+          //self.report_card.issueCard(username, self.config.network.name, language, )
+          self._requestCard(username, self.config.network.name, language, callback);
+          break;
+
+        case 'flood':
+          self.logger.info('Bot detected request keyword "flood"');
+          self._requestCard(username, self.config.network.name, language, callback);
+          break;
+      }
+    },
+
+      /**
+       * Function to watch reports table and confirm when report recieved
+       * @param {function} callback Callback function for Bot response
+       */
+      confirm: function(callback){
         var self = this;
 
         self.report_card.watchCards(self.config.network.name, function(err, report){
-          callback(err, report.username, report.username+'- '+self.dialogue['en'].received);
+          if (err){
+            self.logger.error("Could not watch cards from Bot.js"); 
+          } else {
+            callback(err, report.username,
+
+                     report.username+'- '+self._getDialogue(self.dialogue.confirmation,
+                                                            report.language)+' https://petabencana.id/jakarta/'+report.report_id);
+          }
         });
       }
-
 };
-
-
 
 module.exports = Bot;

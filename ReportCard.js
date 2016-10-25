@@ -38,7 +38,7 @@ ReportCard.prototype = {
     * Configured instance of logger object from Winston module
     * @type {object}
     */
-    logger: null,
+   logger: null,
 
   /**
    * Private method to generate card id (nested function allows testing)
@@ -94,22 +94,21 @@ ReportCard.prototype = {
   },
 
   /**
-   * Create card unique id, register in database, and return value via callback
-   * @param {string} username Unique username requesting card (e.g. @user)
-   * @param {string} network Name of user social messaging network (e.g. Twitter)
-   * @param {function} callback Callback function to return card id
+   * Insert a record into the grasp_log table
+   * Call the callback with card_id once query is succesful.
+   *
+   * @param {string} card_id Unique card identifier
+   * @param {string} event_type Log information (e.g. "CARD ISSUED")
+   * @param {function} callback Callback function for handling error or card_id
    */
-  issueCard: function(username, network, callback){
+  _insertLogTbl: function(card_id, event_type, callback){
 
     var self = this;
 
-    // Create card id
-    var _card_id = self._generate_id();
-
     self.dbQuery(
       {
-      text: "INSERT INTO grasp_cards (card_id, username, network, received) VALUES ($1, $2, $3, FALSE);",
-      values: [ _card_id, username, network ]
+        text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
+        values: [ card_id, event_type]
       },
       function(err, result){
         if (err){
@@ -117,58 +116,156 @@ ReportCard.prototype = {
           callback(err, null);
         }
         else {
-          self.dbQuery(
-            {
-              text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
-              values: [ _card_id, "CARD ISSUED"]
-            },
-            function(err, result){
-              if (err){
-                self.logger.error(err);
-                callback(err, null);
-              }
-              else {
-                self.logger.info('Issued card '+_card_id);
-                callback(err, _card_id);
-              }
-            }
-          );
+          callback(null, card_id);
         }
       }
     );
   },
 
   /**
-   * Create card unique id, register in database, and return value via callback
-   * @param {card_id} string Card id
+   * Insert a record into the grasp_cards table
+   * Call the callback with card_id once query is succesful.
+   *
+   * Function to parse user input and provide response based on keyword detection
+   * @param {string} card_id Unique card identifier
+   * @param {string} username Unique username e.g. @twitter
+   * @param {string} network User social messaging network e.g. twitter
+   * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
+   * @param {function} callback Callback function for handling error or card_id
    */
-  checkCardStatus: function(card_id, callback){
+  _insertCard: function(card_id, username, network, language, callback){
+
+    var self = this;
+
+    self.dbQuery(
+      {
+      text: "INSERT INTO grasp_cards (card_id, username, network, language, received) VALUES ($1, $2, $3, $4, FALSE);",
+      values: [ card_id, username, network, language ]
+      },
+      function(err, result){
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        }
+        else {
+          self.logger.info('Issued card '+card_id);
+          self._insertLogTbl(card_id, "CARD ISSUED", callback);
+        }
+      }
+    );
+  },
+
+    /**
+     * Check status of card in grasp_cards table
+     * Call the callback with result object once query is succesful.
+     *
+     * Function to parse user input and provide response based on keyword detection
+     * @param {string} card_id Unique card identifier
+     * @param {function} callback Callback function for handling status result object
+     */
+    _checkCardStatus: function(card_id, callback){
+
+      var self = this;
+
+      var filter = function(err, result){
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        }
+        else if (result.length > 0){
+          self.logger.info('Checked card '+card_id+' is valid');
+          callback(null, result[0]);
+        }
+        else {
+          self.logger.info('Checked card '+card_id+' was not found in database');
+          callback(null, {received : null});
+        }
+      };
+
+      self.dbQuery(
+        {
+        text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
+        values : [ card_id ]
+       },
+       filter
+     );
+   },
+
+   //TODO - jsdoc
+   _insertReport: function(card_id, report_object, callback){
+
      var self = this;
-     if (shortid.isValid(card_id)){
-       self.dbQuery(
-         {
-         text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
-         values : [ card_id ]
-        },
+
+     self.dbQuery({
+       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
+       values: [ card_id ]
+     },
+     function(err, result){
+       if (err){
+         self.logger.error(err);
+         callback(err, null);
+       }
+       else {
+         self._updateGraspCards(card_id, result[0].pkey, callback);
+       }
+     }
+   );
+   },
+
+   //TODO - jsdoc
+   _updateGraspCards: function(card_id, report_id, callback){
+
+     var self = this;
+
+     self.dbQuery(
+       {
+       text: "UPDATE grasp_cards SET received = TRUE, report_id = $1 WHERE card_id = $2",
+       values: [ report_id, card_id ]
+       },
         function(err, result){
           if (err){
             self.logger.error(err);
             callback(err, null);
           }
-          else if (result[0].received === false){
-            self.logger.info('Checked card '+card_id+' - valid');
-            callback(err, result[0]);
-          }
           else {
-            self.logger.info('Checked card '+card_id+' - already completed');
-            callback(err, {received : 'invalid'});
+            self._insertLogTbl(card_id, 'REPORT RECEIVED', function(card_id){
+              callback(report_id);
+            });
           }
         }
       );
+   },
+
+  /**
+   * Create card unique id, register in database, and return value via callback
+   * @param {string} username Unique username requesting card (e.g. @user)
+   * @param {string} network Name of user social messaging network (e.g. Twitter)
+   * @param {string} language Text string containing ISO 639-1 two letter language code e.g. 'en'
+   * @param {function} callback Callback function to return card id
+   */
+  issueCard: function(username, network, language, callback){
+
+    var self = this;
+
+    // Create card id
+    var _card_id = self._generate_id();
+
+    self._insertCard(_card_id, username, network, language, callback);
+  },
+
+  /**
+   * Check the validity and status of a card id
+   * @param {string} card_id Unique card identifier
+   * @param {function} callback Callback function to return status result
+   */
+  checkCardStatus: function(card_id, callback){
+     var self = this;
+     if (shortid.isValid(card_id)){
+       self._checkCardStatus(card_id, callback);
      }
      else {
-       self.logger.info('Checked card '+card_id+' - invalid');
-       callback(null, {received : 'invalid'});
+       self.logger.info('Checked card '+card_id+' was found invalid by shortid');
+       callback(null, {received : null});
      }
    },
 
@@ -181,6 +278,8 @@ ReportCard.prototype = {
     * @param  {string} text          Description of the report
     */
    insertReport: function(created_at, card_id, location, water_depth, text, callback){
+   // Insert report from user (i.e. from server)
+   
      var self = this;
      self.logger.info("Got insert report call to Reportcard");
 
@@ -277,8 +376,9 @@ ReportCard.prototype = {
           }
          }
          catch (e){
-           self.logger.error('Error with listen notification from database\n'+e);
+           self.logger.error('Error processing listen notification from database\n'+e);
            callback(e);
+
            return;
          }
        });

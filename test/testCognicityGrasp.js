@@ -1,9 +1,13 @@
 'use strict';
 // Node modules
 var test = require('unit.js');
+var shortid = require('shortid');
 // Test modules
 var ReportCard = require('../ReportCard');
 var Bot = require('../Bot');
+
+var config = require('../sample-grasp-config');
+var dialogue = require('../sample-bot-dialogue');
 
 // Create grasp object with empty objects
 // Mock objects as required for each test suite
@@ -13,13 +17,7 @@ var report_card = new ReportCard(
                   {}
 );
 
-var bot = new Bot(
-                {
-                  regex: /\breport|alerts\b/i
-                },
-                {},
-                {}
-);
+var bot = new Bot(config.bot, dialogue, {}, {});
 
 // Test harness for ReportCard object
 describe( 'ReportCard', function(){
@@ -28,171 +26,190 @@ describe( 'ReportCard', function(){
   describe( 'Succesful issueCard', function(){
 
     // Mock functions
-    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerInfo;
-    var cardDBvalue, logDBvalue, loggerValue;
+    var old_insertCard, old_generateID;
+    var fail_database = 0;
     before (function(){
-        oldDBIssueCard = report_card.db.issueCard;
-        report_card.db.issueCard = function(param_dict, callback){
-          cardDBvalue = param_dict[0];
-          callback(0, 'data');
+        // insert into report card table
+        old_insertCard = report_card._insertCard;
+        report_card._insertCard = function(card_id, username, network, language, callback){
+          if (fail_database === 0){
+            callback(null, card_id);
+          }
+          else {
+            callback(1, null);
+          }
         };
-        oldDBInsertLog = report_card.db.insertLog;
-        report_card.db.insertLog = function(param_dict, callback){
-          logDBvalue = param_dict
-          callback(0, 'log')
+        // generate onetime link
+        old_generateID = report_card._generate_id;
+        report_card._generate_id = function(){
+          return('ABC1234');
         };
-        oldGenerateID = report_card.issueCard._generate_id;
-        report_card._generate_id = function(){return 'ABC1234'};
-
-        oldLoggerInfo = report_card.logger.info;
-        report_card.logger.info = function(message){
-          loggerValue = message;
-        }
     });
 
-    // Test
+    // Test return card id
     it ('Returns correct card id ', function(){
-      report_card.issueCard(function(result){
-        test.value(result).is('ABC1234');
+      report_card.issueCard('username', 'network', 'language', function(err, card_id){
+        test.value(card_id).is('ABC1234');
       });
     });
 
-    it ('Sends correct card id to database card table', function(){
-      report_card.issueCard(function(result){
-        test.value(cardDBvalue).is('ABC1234');
+    it ('Catches database error with _insertCard', function(){
+      fail_database = 1;
+      report_card.issueCard('username', 'network', 'language', function(err, card_id){
+        test.value(err).is(1);
       });
     });
-
-    it ('Sends correct card data to database log table', function(){
-      report_card.issueCard(function(result){
-        test.value(logDBvalue[0]).is('ABC1234');
-        test.value(logDBvalue[1]).is('CARD ISSUED');
-      });
-    });
-
-    // Retore mocked items
     after (function(){
-      report_card.db.issueCard = oldDBIssueCard;
-      report_card.db.insertLog = oldDBInsertLog;
-      report_card._generate_id = oldGenerateID;
-      report_card.logger.info = oldLoggerInfo;
+      fail_database = 0;
+      report_card._generate_id = old_generateID;
+      report_card.issueCard = old_insertCard;
     });
-
-    // test logger values if data
   });
 
-  // Test suite for issueCard function
-  describe( 'Catch issueCard database errors', function(){
+  // Test suite for checkCardStatus function
+  describe( 'Succesful checkCardStatus', function(){
+    var old_shortidIsValid, old_loggerDebug, old_loggerInfo, old_loggerError, old_dbQuery, isValid = false;
 
-    // Mock functions
-    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerError;
-    var cardDBvalue, logDBvalue, loggerValue;
-    before (function(){
-        oldDBIssueCard = report_card.db.issueCard;
-        report_card.db.issueCard = function(param_dict, callback){
-          cardDBvalue = param_dict[0];
-          callback(1, 'data');
-        };
-        oldDBInsertLog = report_card.db.insertLog;
-        report_card.db.insertLog = function(param_dict, callback){
-          logDBvalue = param_dict
-          callback(0, 'log')
-        };
-        oldGenerateID = report_card.issueCard._generate_id;
-        report_card._generate_id = function(){return 'ABC1234'};
-
-        oldLoggerError = report_card.logger.error;
-        report_card.logger.error = function(message){
-          loggerValue = message;
+    before(function(){
+      old_shortidIsValid = shortid.isValid;
+      shortid.isValid = function(){
+        if (isValid === true){
+          return (true);
         }
+        else {
+          return (false);
+        }
+      };
+      old_loggerDebug = report_card.logger.debug;
+      report_card.logger.debug = function(value){
+        console.log('Mocked logger [debug]: '+value);
+      };
+      old_loggerInfo = report_card.logger.info;
+      report_card.logger.info = function(value){
+        console.log('Mocked logger [info]: '+value);
+      };
+      old_loggerError = report_card.logger.error;
+      report_card.logger.error = function(value){
+        console.log('Mocked logger [error]: '+value);
+      };
+      old_dbQuery = report_card.dbQuery;
     });
-
-    // Test
-    it ('Returns correct card id ', function(){
-      report_card.issueCard(function(result){
-        test.value(loggerValue).is('[issueCard] 1');
+    it ('Catches invalid card id', function(){
+      isValid = false;
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
+        test.value(value).is({received : null});
       });
     });
 
-    // Retore mocked items
-    after (function(){
-      report_card.db.issueCard = oldDBIssueCard;
-      report_card.db.insertLog = oldDBInsertLog;
-      report_card._generate_id = oldGenerateID;
-      report_card.logger.error = oldLoggerError;
-    });
-  });
-  // Test suite for issueCard function
-  describe( 'Catch insertLog database errors', function(){
-
-    // Mock functions
-    var oldDBIssueCard, oldDBInsertLog, oldGenerateID, oldLoggerError;
-    var cardDBvalue, logDBvalue, loggerValue;
-    before (function(){
-        oldDBIssueCard = report_card.db.issueCard;
-        report_card.db.issueCard = function(param_dict, callback){
-          cardDBvalue = param_dict[0];
-          callback(0, 'data');
-        };
-        oldDBInsertLog = report_card.db.insertLog;
-        report_card.db.insertLog = function(param_dict, callback){
-          logDBvalue = param_dict
-          callback(2, 'log')
-        };
-        oldGenerateID = report_card.issueCard._generate_id;
-        report_card._generate_id = function(){return 'ABC1234'};
-
-        oldLoggerError = report_card.logger.error;
-        report_card.logger.error = function(message){
-          loggerValue = message;
-        }
-    });
-
-    // Test
-    it ('Returns correct card id ', function(){
-      report_card.issueCard(function(result){
-        test.value(loggerValue).is('[issueCard] 2');
+    it ('Filters a false result from _checkCardStatus', function(){
+      isValid = true;
+      report_card.dbQuery = function(object, callback){
+        callback(null, [{received : false}]);
+      };
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
+        test.value(value.received).is(false);
       });
+      report_card.dbQuery = old_dbQuery;
     });
 
-    // Retore mocked items
-    after (function(){
-      report_card.db.issueCard = oldDBIssueCard;
-      report_card.db.insertLog = oldDBInsertLog;
-      report_card._generate_id = oldGenerateID;
-      report_card.logger.error = oldLoggerError;
+    it ('Filters a true result from _checkCardStatus ', function(){
+      isValid = true;
+      report_card.dbQuery = function(object, callback){
+        callback(null, [{received : true}]);
+      };
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
+        test.value(value.received).is(true);
+      });
+      report_card.dbQuery = old_dbQuery;
+    });
+
+    it ('Filters an invalid result from _checkCardStatus ', function(){
+      isValid = true;
+      report_card.dbQuery = function(object, callback){
+        callback(null, []);
+      };
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(null);
+        test.value(value.received).is(null);
+      });
+      report_card.dbQuery = old_dbQuery;
+    });
+
+    it ('Catches database error for _checkCardStatus', function(){
+      isValid = true;
+      report_card.dbQuery = function(object, callback){
+        callback(new Error('Database query error'));
+      };
+      report_card.checkCardStatus('123', function(err, value){
+        test.value(err).is(Error());
+        test.value(value).is(null);
+      });
     });
   });
 });
 
+// TODO test for confirm method
 // Test harness for CognicityGrasp object
 describe( 'Bot', function(){
+  var old_loggerError, old_loggerInfo, old_bot_requestCard;
+  before(function(){
+    old_loggerError = bot.logger.error;
+    bot.logger.error = function(value){
+      console.log('Mocked logger [error]: '+value);
+    };
+    old_loggerInfo = bot.logger.info;
+    bot.logger.info = function(value){
+      console.log('Mocked logger [error]: '+value);
+    };
+    old_bot_requestCard = bot._requestCard;
+    bot._requestCard = function(username, network, language, callback){
+      return callback(null, 'Correct response');
+    };
+  });
   // Test suite for issueCard function
-  describe( 'Succesfully parse input', function(){
-    var oldissueCard = bot.report_card.issueCard;
-    var oldLoggerInfo = bot.logger.info;
-    var report_card_return_value;
-    var loggerValue;
-    before (function(){
-      bot.report_card.issueCard = function(callback){
-        report_card_return_value = 0;
-      };
-      bot.logger.info = function(message){
-        loggerValue = message;
-      }
+  describe( 'getsDialogue', function(){
+    it ('Falls back on default language if not found in dialogue', function(){
+      bot.config.default_language = 'en';
+      var text = {cards:{en:'card text'}};
+      test.value(bot._getDialogue(text.cards, 'de')).is('card text');
     });
-    it ('No card requested if keyword not found', function(){
-      bot.parse('spam', function(){});
-      test.value(loggerValue).is('Bot could not detect a keyword');
+  });
+  describe( 'cardAddress', function(){
+    it ('Catches error with card_url_prefix', function(){
+      bot.config.card_url_prefix = null;
+      bot._cardAddress(123, function(err, value){
+        test.value(err).is('[cardAddress] No card url prefix specified');
+      });
     });
-    it ( 'Detects keyword, and requests card', function(){
-      bot.parse('report', function(){});
-      test.value(report_card_return_value).is(0);
-      test.value(loggerValue).is('Bot requesting issue of card');
+    it ('Returns correct card address', function(){
+      bot.config.card_url_prefix = 'prefix';
+      bot._cardAddress(123, function(err, value){
+        test.value(value).is('prefix/123');
+      });
     });
-    after (function(){
-      bot.report_card.issueCard = oldissueCard;
-      bot.logger.info = oldLoggerInfo;
+  });
+  describe ( ' parseRequest ', function(){
+    it ('detects no keywords, and calls ahoy', function(){
+      bot.parseRequest('user', 'no keywords here', 'en', function(err, value){
+          test.value(value).is(bot.dialogue.ahoy.en);
+      });
     });
+    it ('Detects "banjir" and returns correct response', function(){
+      bot.parseRequest('user', 'banjir', 'en', function(err, value){
+        test.value(value).is('Correct response');
+      });
+    });
+    it ('Detects "flood" and returns correct response', function(){
+      bot.parseRequest('user', 'banjir', 'en', function(err, value){
+        test.value(value).is('Correct response');
+      });
+    });
+  });
+  after(function(){
+    bot.logger.error = old_loggerError;
+    bot.logger.info = old_loggerInfo;
   });
 });
