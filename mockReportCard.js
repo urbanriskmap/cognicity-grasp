@@ -109,7 +109,7 @@ ReportCard.prototype = {
    * @param {string} network Name of user social messaging network (e.g. Twitter)
    * @param {function} callback Callback function to return card id
    */
-  issueCard: function(username, network, callback){
+  issueCard: function(username, network, language, callback){
 
     var self = this;
 
