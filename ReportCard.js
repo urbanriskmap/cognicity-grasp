@@ -279,7 +279,7 @@ ReportCard.prototype = {
     */
    insertReport: function(created_at, card_id, location, water_depth, text, callback){
    // Insert report from user (i.e. from server)
-   
+
      var self = this;
      self.logger.info("Got insert report call to Reportcard");
 
@@ -296,7 +296,7 @@ ReportCard.prototype = {
            else {
              self.logger.info('Inserted report successfully for card_id: ' + card_id);
              self.dbQuery({
-               text: "UPDATE grasp_cards SET received = TRUE WHERE card_id = $1",
+               text: "UPDATE grasp_cards SET received = TRUE, report_id = " + insertReportResult[0].pkey + "WHERE card_id = $1",
                values: [ card_id ]
               },
                 function(updateCardStatusError, updateCardStatusResult){
@@ -369,7 +369,10 @@ ReportCard.prototype = {
        // Return the listen notification
        client.on('notification', function(msg) {
          try{
+          self.logger.info('Msg: ' + msg);
+          self.logger.info('Payload: ' + msg.payload);
           var notification = JSON.parse(msg.payload);
+          self.logger.info('Parse successful');
           if (notification.grasp_cards.network === network){
             self.logger.info('Received card submission');
             callback(null, notification.grasp_cards);
