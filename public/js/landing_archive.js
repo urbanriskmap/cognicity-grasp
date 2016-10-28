@@ -7,7 +7,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/mayankojha/ciu43n5ge00bj2ilfv9vazp
 map.setView([-6.2, 106.83], 14);
 
 //CHANGE no. of cards; by ADDING NEW CARD TITLE in right order, terms&conditions & thank you remain second-to-last and last in array...
-var titleStrings = ['Select Location', 'Report Height of Flooding', 'Upload a photo', 'Add Description', 'Review & Submit', 'Terms & Conditions', 'Report Submitted'];
+var titleStrings = ['Select Location', 'Report Height of Flooding', 'Add Description', 'Review & Submit', 'Terms & Conditions', 'Report Submitted'];
 var noOfCards = titleStrings.length - 2; //User input cards only; exclude Terms&Conditions and Thank you cards
 var cardTracker = 0;
 var reportParams = {location: null, height: null, description: null}; //Object collecting user input
@@ -96,10 +96,20 @@ $.extend({
 // ***CARD 0*** get/set location
 $('#contentCard0').on('launch', function () {
   var cardmap = L.map('cardMapWrapper'),
-  gpsLocation,
-  center;
+  //TODO: this is super slow (at least on my machine, unclear if we can make faster
 
-  L.tileLayer('https://api.mapbox.com/styles/v1/asbarve/ciu0anscx00ac2ipgyvuieuu9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYXNiYXJ2ZSIsImEiOiI4c2ZpNzhVIn0.A1lSinnWsqr7oCUo0UMT7w', {
+  geolocated = false,
+  markerPlaced = false,
+  gpsLocation,
+  center,
+  marker,
+  markerIcon = L.icon({
+    iconUrl: '/svg/marker-11.svg',
+    iconSize: [60, 60],
+    iconAnchor: [30, 60]
+  });
+
+  L.tileLayer('https://api.mapbox.com/styles/v1/mayankojha/ciu43n5ge00bj2ilfv9vazp2e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWF5YW5rb2poYSIsImEiOiJfeGl3Y01jIn0.Z3VjUlCe-W63PLsPzY_7Cw', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OSM</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA</a>, Imagery &copy; <a href="http://mapbox.com">Mapbox</a>',
     minZoom: 10,
     maxZoom: 20
@@ -108,9 +118,27 @@ $('#contentCard0').on('launch', function () {
   cardmap.locate({
     setView: true,
     zoom: 14
+    //maxBounds: boundsC
+    //TODO: retain cambridge & jakarta map variables for the development stage,
+    //geolocation doesn't work otherwise; most of the commented code is for later Use
   });
 
+  $('#setLocation').prop('disabled', true);
   $('#resetLocation').prop('disabled', true);
+  $('#next').prop('disabled', true);
+
+  /* BOUNDS for Jakarta as per field team's inputs
+  var boundsJ = [
+  // Jakarta
+  [-6.5, 106.5], // Southwest coordinates
+  [-5.9, 107.05]  // Northeast coordinates
+  ];
+  var boundsC = [
+  // Cambridge
+  [42.2, -71.2], // Southwest coordinates
+  [42.5, -70]  // Northeast coordinates
+  ];
+  */
 
   //Geolocate function
   cardmap.once('locationfound', function (e) {
@@ -131,39 +159,74 @@ $('#contentCard0').on('launch', function () {
       radius: 8
     }).addTo(cardmap);
 
+    marker = L.marker(gpsLocation, {
+      icon: markerIcon
+    }).addTo(cardmap);
+
+    geolocated = true;
+    markerPlaced = true;
+    $('#setLocation').prop('disabled', true);
     $('#resetLocation').prop('disabled', false);
+    $('#next').prop('disabled', false);
+
     reportParams.location = gpsLocation.lng + " " + gpsLocation.lat;
   });
 
   //Geolocate error function
   cardmap.once('locationerror', function () { //Execute once
+    //TODO: alert(e.message); //add msg here; 'enable gps location'
+
+    //Set view to default center
     cardmap.setView([-6.2, 106.83], 14); //Jakarta
+    //cardmap.setView([42.365, -71.095], 14); //Cambridge
+
+    //Set map pan bounds
+    //cardmap.setMaxBounds(boundsJ);
+    //cardmap.setMaxBounds(boundsC);
+
+    center = cardmap.getCenter();
+
+    $('#setLocation').prop('disabled', false);
     $('#resetLocation').prop('disabled', true);
   });
 
-  $('#resetLocation').click(function () {
-    if (gpsLocation) {
-      cardmap.flyTo(gpsLocation);
-    }
-    $('#resetLocation').prop('disabled', true);
-  });
-
+  //Update picker position & toggle buttons
   cardmap.on('move', function () {
-    if (gpsLocation) {
+    center = cardmap.getCenter();
+    $('#setLocation').prop('disabled', false);
+    if (geolocated) {
       $('#resetLocation').prop('disabled', false);
     }
   });
 
-  $('#next').click(function () {
-    center = cardmap.getCenter();
+  $('#setLocation').click(function () {
+    if (markerPlaced) {
+      cardmap.removeLayer(marker);
+    }
+
+    marker = L.marker(center, {
+      icon: markerIcon
+    }).addTo(cardmap);
+
+    markerPlaced = true;
+    $('#setLocation').prop('disabled', true);
+    $('#next').prop('disabled', false);
+
     reportParams.location = center.lng + " " + center.lat;
+  });
+
+  $('#resetLocation').click(function () {
+    if (geolocated) {
+      cardmap.flyTo(gpsLocation);
+    }
+    $('#resetLocation').prop('disabled', true);
   });
 });
 
 
 // ***CARD 1*** set height
 $('#contentCard1').one('launch', function () { //launch once
-  $('#dragRef').delay(1000).fadeOut(400);
+  $('#dragRef').delay(1000).fadeOut(500);
 
   /* Custom VERTICAL HEIGHT SLIDER, required due to browser compatibility issues
   with <input type="range"> + css transformations; also limits of css styling
@@ -175,7 +238,7 @@ $('#contentCard1').one('launch', function () { //launch once
   initOff = $('#slider').offset().top, //initial top offset
   fillH = $('#waterFill').height(),
   refH = $('#bgImg').height(), //height of reference image in pixels as rendered
-  //pressed = false,
+  pressed = false,
   translateVar = - 40, //initial translateY
   stringH = ['Ankle-deep', 'Knee-deep', 'Waist-high', 'Neck-high', 'Above-neck'],
   thresholdH = [0, 25, 50, 100, 150, imgH], //bounds for stringH, [0]=-1 to include 0cm...
@@ -186,53 +249,41 @@ $('#contentCard1').one('launch', function () { //launch once
 
   $('#slider').on('touchstart mousedown', function (e) {
     startPos = e.touches[0].pageY;
-    //pressed = true;
+    pressed = true;
     $('#sliderKnob').prop('active', true);
-    $('#cardFrame').on('touchmove mousemove', function (e) {
-      e.preventDefault();
-      dragPos = e.touches[0].pageY;
-      heightInCm = Math.round(((fillH + (startPos - dragPos)) * imgH) / refH);
-      if (heightInCm > 0 && heightInCm <= imgH) {
-        $('#slider').css({
-          'transform': 'translateY(' + (translateVar + dragPos - startPos) + 'px)'
-        });
-        $('#waterFill').height(fillH + (startPos - dragPos) + 'px');
-        $('#waterFill').css({
-          'background-color': 'rgba(128, 203, 196, ' + (0.1 + (heightInCm / imgH) * 0.65) + ')' //Opacity range 0.1 to 0.75
-        });
-        for (var i = 0; i < stringH.length; i += 1) {
-          if (heightInCm > thresholdH[i] && heightInCm <= thresholdH[i + 1]) {
-            $('#hText').html(stringH[i] + ', ' + heightInCm + 'cm');
-          }
+  });
+  $('#cardFrame').on('touchmove mousemove', function (e) {
+    e.preventDefault();
+    dragPos = e.touches[0].pageY;
+    heightInCm = Math.round(((fillH + (startPos - dragPos)) * imgH) / refH);
+    if (pressed && heightInCm > 0 && heightInCm <= imgH) {
+      $('#slider').css({
+        'transform': 'translateY(' + (translateVar + dragPos - startPos) + 'px)'
+      });
+      $('#waterFill').height(fillH + (startPos - dragPos) + 'px');
+      $('#waterFill').css({
+        'background-color': 'rgba(128, 203, 196, ' + (0.1 + (heightInCm / imgH) * 0.65) + ')' //Opacity range 0.1 to 0.75
+      });
+      for (var i = 0; i < stringH.length; i += 1) {
+        if (heightInCm > thresholdH[i] && heightInCm <= thresholdH[i + 1]) {
+          $('#hText').html(stringH[i] + ', ' + heightInCm + 'cm');
         }
       }
-    });
-    $(document).on('touchend mouseup', function () {
-      //if (pressed) {
-        //pressed = false;
-        $('#sliderKnob').prop('active', false);
-        translateVar = - 40 + $('#slider').offset().top - initOff;
-        fillH = $('#waterFill').height();
-        reportParams.height = heightInCm;
-      //}
-    });
+    }
+  });
+  $(document).on('touchend mouseup', function () {
+    if (pressed) {
+      pressed = false;
+      $('#sliderKnob').prop('active', false);
+      translateVar = - 40 + $('#slider').offset().top - initOff;
+      fillH = $('#waterFill').height();
+      reportParams.height = heightInCm;
+    }
   });
 });
 
-
-// ***CARD 2*** add photo
+// ***CARD 2*** enter description
 $('#contentCard2').on('launch', function () {
-  $('#photoCapture').click(function () {
-    $('#ghostCapture').trigger('click');
-  });
-  $('#photoSelector').click(function () {
-    $('#ghostPicker').trigger('click');
-  });
-});
-
-
-// ***CARD 3*** enter description
-$('#contentCard3').on('launch', function () {
   var charLength = $('#descripText').val().length;
 
   if (charLength === 0) {
@@ -254,8 +305,8 @@ $('#contentCard3').on('launch', function () {
 });
 
 
-// ***CARD 4*** summary
-$('#contentCard4').on('launch', function () {
+// ***CARD 3*** summary
+$('#contentCard3').on('launch', function () {
   $('#floodH').html('Height of flooding: ' + reportParams.height + 'cm');
   if (reportParams.description) {
     $('#comment').html(reportParams.description);
@@ -289,16 +340,16 @@ $('#contentCard4').on('launch', function () {
         $('#next').trigger('click');
         //Push input values
         var card_id = window.location.pathname.split('/').pop();
-        $.put('/report/' + card_id, {
-          location: reportParams.location,
+        $.put('/report/' + card_id,
+        {location: reportParams.location,
           water_depth: reportParams.height,
           text: reportParams.description,
           created_at: new Date().toISOString()
-        }, function (putResult) {
+        }, function(putResult) {
           console.log('Report ID json: ' + putResult);
-          if (putResult > 0) {
+          if(putResult > 0){
             console.log('Making getAllReports call');
-            $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function (getResult) {
+            $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function(getResult){
               if (getResult.statusCode === 200) {
                 console.log('getAllReports call successful');
               } else {
@@ -307,6 +358,10 @@ $('#contentCard4').on('launch', function () {
             });
           }
         });
+        //delay 2500, display thanks card, and open petajakarta.id
+        window.setTimeout(function() {
+          window.location.replace('/');
+        }, 2500);
       }
     }
   });
@@ -328,14 +383,14 @@ $('#contentCard4').on('launch', function () {
 
 
 // ***Terms & Conditions Card***
-$('#contentCard5').on('launch', function () {
+$('#contentCard4').on('launch', function () {
   $('#cardTitle').html('Terms &amp; Conditions');
   $('#next').prop('disabled', true);
 });
 
 
 // ***Thank you Card***
-$('#contentCard6').on('launch', function () {
+$('#contentCard5').on('launch', function () {
   $('#next').prop('disabled', true);
   $('#prev').prop('disabled', true);
   $('.tabBtn').css({
@@ -345,8 +400,4 @@ $('#contentCard6').on('launch', function () {
   });
   $('#cardFrame').delay(2000).fadeOut(500);
   $('#screen').delay(2000).fadeOut(500);
-  //delay 2500, open petajakarta.id
-  window.setTimeout(function () {
-    window.location.replace('/');
-  }, 2500);
 });

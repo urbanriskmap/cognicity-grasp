@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, minimum-scale=0.85">
+  <meta name="viewport" content="width=device-width, initial-scale=0.85, user-scalable=no">
 
-  <!--LEAFLET CDN & stylesheet-->
+  <!--LEAFLET CDN & stylesheet -->
   <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css">
 
@@ -43,12 +43,12 @@
       <div id="contentCard0" class="cardInner">
         <div id="cardMapWrapper">
           <div id="picker">
-            <img src="/svg/locationPicker.svg">
+            <img src="/svg/marker-11.svg">
           </div>
         </div>
         <div id="locationWrapper">
           <button id="resetLocation"><i class="fa fa-location-arrow" aria-hidden="true"></i></button>
-          <button id="setLocation"><i class="fa fa-map-marker" aria-hidden="true"></i></button>
+          <!--<button id="setLocation"><i class="fa fa-map-marker" aria-hidden="true"></i></button>-->
         </div>
       </div>
 
@@ -60,27 +60,36 @@
           </div>
           <div id="slider">
             <button id="sliderKnob"></button>
-            <!--<div id="sliderKnob"></div>-->
           </div>
           <p id="hText"></p>
         </div>
         <div id="dragRef">
           <img src="/svg/swipeAid-02.svg">
         </div>
-        <div id="hideZone">
+      </div>
+
+      <!-- CARD 2 : Upload photo -->
+      <div id="contentCard2" class="cardInner">
+        <div id="ghostDiv">
+          <input id="ghostCapture" type="file" accept="image/*" capture="camera">
+          <input id="ghostPicker" type="file" accept="image/*">
+        </div>
+        <div id="photoButtonWrapper">
+          <button id="photoCapture"><i class="fa fa-camera" aria-hidden="true"></i></button>
+          <button id="photoSelector"><i class="fa fa-file-image-o" aria-hidden="true"></i></button>
         </div>
       </div>
 
-      <!-- CARD 2 : Flood height -->
-      <div id="contentCard2" class="cardInner">
+      <!-- CARD 3 : Description -->
+      <div id="contentCard3" class="cardInner">
         <div id="textWrapper">
           <textarea id="descripText" maxlength="140" rows="5" spellcheck="true"></textarea>
           <p id="charRef">0/140</p>
         </div>
       </div>
 
-      <!-- CARD 3 : Review & submit -->
-      <div id="contentCard3" class="cardInner">
+      <!-- CARD 4 : Review & submit -->
+      <div id="contentCard4" class="cardInner">
         <div id="summaryCard">
           <img id="summaryPhoto" src="/img/chennai-floods-759.jpg">
           <div id="summaryTextWrapper">
@@ -100,8 +109,8 @@
         </div>
       </div>
 
-      <!-- CARD 4 : Terms & Conditions -->
-      <div id="contentCard4" class="cardInner">
+      <!-- CARD 5 : Terms & Conditions -->
+      <div id="contentCard5" class="cardInner">
         <div id="TandCWrapper">
           <p>These terms and conditions outline the rules and regulations for the use of  Urban Risk Lab's Website. <br>
             <br><p>Urban Risk Lab is located at:
@@ -208,8 +217,8 @@
             </div>
           </div>
 
-          <!-- CARD 5 : Thank you! -->
-          <div id="contentCard5" class="cardInner">
+          <!-- CARD 6 : Thank you! -->
+          <div id="contentCard6" class="cardInner">
             <div id="thanksText">
               <p id="thanksBold">Thank you!</p>
               <p>Credits, Logos?</p>

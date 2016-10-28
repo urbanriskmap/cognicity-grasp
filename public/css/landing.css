@@ -65,13 +65,7 @@
   text-align: center;
 }
 
-/* remove later */
-.cardInner p {
-  margin: 0px;
-  padding: 0px;
-}
-
-/* CARD 1 - Location */
+/* CARD 0 - Location */
 #cardMapWrapper {
   position: relative;
   margin: 0px;
@@ -95,7 +89,7 @@
 #locationWrapper button {
   margin: 0px;
   padding: 0px;
-  width: 50%;
+  width: 100%; /* 50% for set button */
   height: 100%;
   float: left;
   z-index: 11;
@@ -121,13 +115,13 @@
   z-index: 500;
   left: 50%;
   top: 50%;
-  width: 36px;
-  height: 36px;
+  width: 45px;
+  height: 45px;
   transform: translate(-50%, -50%);
 }
 
 
-/* CARD 2 - Height */
+/* CARD 1 - Height */
 #bgRef {
   position: absolute;
   top: 50%;
@@ -161,7 +155,7 @@
   margin: 0px;
   padding: 0px;
   width: 100%;
-  height: 20%;
+  height: 60px;
   transform: translateY(-100%);
   background-color: rgba(128, 203, 196, 0.25);
   border: none;
@@ -174,36 +168,29 @@
   margin: auto;
   border: 0px solid white;
   width: 70%;
-  transform: translate(43%, 89%);
+  transform: translate(41.2%, 87.7%);
   z-index: 15;
 }
 
-#slider { /* NOT UTILISED, remove...*/
+#slider {
   position: absolute;
-  width: 48px;
-  height: 100%;
+  width: 100%;
   bottom: 0px; /*check safari & chrome, add width of border-top for waterFill */
-  right: 0px;
+  right: -6px;
   margin: 0px;
-  padding: 0px;
-  border: 0px solid white;
+  padding: 6px;
   z-index: 13;
-  text-align: center;
-  transform: translateX(26%); /* to center knob within slider*/
+  text-align: right;
+  transform: translateY(-40px);  /* align slide zone to top border of waterFill */
 }
 
 #sliderKnob {
   position: relative;
   margin: 0px;
-  padding: 0px;
-  top: 80%;
-  right: 0px;
-  width: 24px;
-  height: 24px;
-  transform: translateY(-50%);
-  color: white;
+  width: 30px;
+  height: 30px;
   border: none;
-  border-radius: 12px;
+  border-radius: 15px;
   background-color: #80cbc4;
   outline: none;
   box-shadow: 2px 5px 8px 0px rgba(0, 0, 0, 0.4);
@@ -215,12 +202,42 @@
   box-shadow: none;
 }
 
-#hideZone {
+/* CARD 2 - add photo */
+#ghostDiv {
+  position: fixed;
+  display: none;
+}
+
+#photoButtonWrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+#photoButtonWrapper button {
   position: relative;
-  width: 95px;
-  height: 100px;
-  transform: translate(275%, -15%);
-  z-index: 20;
+  display: block;
+  margin: 24px;
+  padding: 0px;
+  background-color: transparent;
+  width: 120px;
+  height: 120px;
+  border: 2px solid #c0c0c0;
+  border-radius: 6px;
+  color: #c0c0c0;
+  font-size: 60px;
+  line-height: 120px;
+  outline: none;
+  box-shadow: 2px 5px 8px 0px rgba(0, 0, 0, 0.4);
+}
+
+#photoButtonWrapper button:active {
+  border: 2px solid #80cbc4;
+  color: #80cbc4;
+  transform: translate(1px, 2px);
+  box-shadow: none;
 }
 
 /* CARD 3 - description*/
@@ -436,7 +453,8 @@
   border-radius: 6px;
   background-color: #80cbc4;
   color: white;
-  font-size: 30px;
+  font-size: 24px;
+  line-height: 100%;
   outline: none;
   box-shadow: 2px 5px 8px 0px rgba(0, 0, 0, 0.4);
 }
