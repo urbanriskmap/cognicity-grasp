@@ -256,12 +256,9 @@ $('#contentCard2').on('launch', function () {
       photo = $('#ghostCapture')[0].files[0];
       if (photo) {
         console.log(photo);
-        $('#photoButtonWrapper').hide();
-        $('#canvasWrapper').show();
         $.get('/report/imageupload/' + card_id, null, function (response) {
-            uploadFile(photo, response.signedRequest, response.url);
+          uploadFile(photo, response.signedRequest, response.url);
         });
-        drawOnCard(photo);
       }
     });
   });
@@ -270,10 +267,10 @@ $('#contentCard2').on('launch', function () {
     $('#ghostCapture').change(function () {
       photo = $('#ghostCapture')[0].files[0];
       if (photo) {
-        $('#photoButtonWrapper').hide();
-        $('#canvasWrapper').show();
-        //uploadFile(photo, uploadLink.signedRequest, uploadLink.url);
-        drawOnCard(photo);
+        console.log(photo);
+        $.get('/report/imageupload/' + card_id, null, function (response) {
+          uploadFile(photo, response.signedRequest, response.url);
+        });
       }
     });
   });
@@ -308,6 +305,9 @@ $('#contentCard2').on('launch', function () {
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
+          $('#photoButtonWrapper').hide();
+          $('#canvasWrapper').show();
+          drawOnCard(file);
           //document.getElementById('preview').src = url; //replace with reviewImg code, alt place img (no html5)
           //document.getElementById('avatar-url').value = url;
         } else {
@@ -317,7 +317,6 @@ $('#contentCard2').on('launch', function () {
     };
     xhr.send(file);
   }
-
 });
 
 
@@ -355,41 +354,13 @@ $('#contentCard4').on('launch', function () {
   slideThreshold = 0.9, //Slider triggers submit function at 90% swipe width
   slideTranslate = 0;
 
-  $('#submitKnob').on('click', function (e) {
-  cardTracker += 1; //cardTracker value override, skip t&c card & arrive at thanks card
-  $('#next').trigger('click');
-  //Push input values
-  $.put('/report/' + card_id, {
-    location: reportParams.location,
-    water_depth: reportParams.height,
-    text: reportParams.description,
-    created_at: new Date().toISOString()
-  }, function (putResult) {
-    console.log('Report ID json: ' + putResult);
-    if (putResult > 0) {
-      console.log('Making getAllReports call');
-      $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function (getResult) {
-        if (getResult.statusCode === 200) {
-          console.log('getAllReports call successful');
-        } else {
-          console.log('getAllReports call failed');
-        }
-      });
-    }
-  });
-});
-
-/*
   $('#submitKnob').on('touchstart mousedown', function (e) {
-    //slideStartPos = e.touches[0].pageX;
-    slideStartPos = e.pageX;
+    slideStartPos = e.touches[0].pageX;
     slidePressed = true;
   });
-  //$('#reviewSubmit').on('touchmove mousemove', function (e) {
   $('#reviewSubmit').on('touchmove mousemove', function (e) {
-    //e.preventDefault();
-    //slideDragPos = e.touches[0].pageX;
-    slideStartPos = e.pageX;
+    e.preventDefault();
+    slideDragPos = e.touches[0].pageX;
     slideTranslate = slideDragPos - slideStartPos;
     if (slidePressed && slideTranslate >= 0 && slideTranslate < slideRange) {
       $('#submitKnob').css({
@@ -437,7 +408,6 @@ $('#contentCard4').on('launch', function () {
   $('#linkToTandC').click(function () { //Launch terms & conditions
     $('#next').trigger('click');
   });
-*/
 });
 
 
