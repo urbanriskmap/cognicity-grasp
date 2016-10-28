@@ -68,7 +68,7 @@ module.exports = function(app, report_card, logger, s3) {
       } else {
         var returnData = {
           signedRequest : data,
-          url: "https://"+s3params.Bucket + ".s3.amazonaws.com" + s3params.Key
+          url: "https://"+s3params.Bucket + ".s3.amazonaws.com/" + s3params.Key
         };
         res.write(JSON.stringify(returnData));
         res.end();
