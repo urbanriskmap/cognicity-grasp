@@ -13,6 +13,14 @@ var fs = require('fs');           // file system
 var path = require('path');       // directory paths
 var express = require('express'); // web
 var bodyParser = require('body-parser'); // web body parse
+var AWS = require('aws-sdk'); // web body parse
+
+//for image uploading
+var s3 = new AWS.S3(
+    {
+      accessKeyId : process.env.accessKeyId || '' ,
+      secretAccessKey : process.env.secretAccessKey  || ''
+    });
 
 // Grasp objects
 // TODO: put this in config file
@@ -87,7 +95,7 @@ app.listen(3000, function(){
     logger.info('Express listening on port 3000');
 });
 // API endpoints
-require('./api')(app, report_card, logger);
+require('./api')(app, report_card, logger, s3);
 
 // Parse some user input, and return response
 bot.ahoy('@nopemartians', 'en', function(err, result){
