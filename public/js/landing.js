@@ -93,6 +93,32 @@ $.extend({
   }
 });
 
+var card_id = window.location.pathname.split('/').pop();
+//    uploadLink;
+
+
+/*
+// retrieve aws image upload link... store as global var
+var uploadLink = function (file) {
+  var xhr = new XMLHttpRequest();
+  var response;
+  xhr.open('GET', '/sign-s3?file-name=' + file.name + '&file-type=' + file.type);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        response = JSON.parse(xhr.responseText);
+        //uploadFile(file, response.signedRequest, response.url);
+      } else {
+        console.log('Could not get signed URL.');
+      }
+    }
+  };
+  xhr.send(); //???
+  return response;
+};
+*/
+
+
 // ***CARD 0*** get/set location
 $('#contentCard0').on('launch', function () {
   var cardmap = L.map('cardMapWrapper'),
@@ -221,32 +247,92 @@ $('#contentCard1').one('launch', function () { //launch once
 
 
 // ***CARD 2*** add photo
+var photo;
+
 $('#contentCard2').on('launch', function () {
   $('#photoCapture').click(function () {
     $('#ghostCapture').trigger('click');
+    $('#ghostCapture').change(function () {
+      photo = $('#ghostCapture')[0].files[0];
+      if (photo) {
+        console.log(photo);
+        $('#photoButtonWrapper').hide();
+        $('#canvasWrapper').show();
+        $.get('/report/imageupload/' + card_id, null, function (response) {
+            uploadFile(photo, response.signedRequest, response.url);
+        });
+        drawOnCard(photo);
+      }
+    });
   });
   $('#photoSelector').click(function () {
     $('#ghostPicker').trigger('click');
+    $('#ghostCapture').change(function () {
+      photo = $('#ghostCapture')[0].files[0];
+      if (photo) {
+        $('#photoButtonWrapper').hide();
+        $('#canvasWrapper').show();
+        //uploadFile(photo, uploadLink.signedRequest, uploadLink.url);
+        drawOnCard(photo);
+      }
+    });
   });
+
+  function drawOnCard(file) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var photoPath = e.target.result,
+          wrapper = $('#photoCanvas'),
+          cntxt = wrapper[0].getContext('2d'),
+          reviewImg = new Image();
+      reviewImg.onload = function() {
+        var w = $('#canvasWrapper').width(),
+            h = $('#canvasWrapper').height();
+        wrapper.width = w;
+        wrapper.height = h;
+        var hImg = Math.round((reviewImg.height * w) / reviewImg.width);
+        console.log(reviewImg.width + 'x' + reviewImg.height + ', ' + w + 'x' + h + ', ' + hImg);
+        cntxt.drawImage(reviewImg, 0, 0, w, hImg);
+      };
+      reviewImg.src = photoPath;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  //Execute along with thank you card... store photo in global variable
+  //Function to carry out the actual PUT request to S3
+  //using the signed request from the app.
+  function uploadFile(file, signedRequest, url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', signedRequest);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          //document.getElementById('preview').src = url; //replace with reviewImg code, alt place img (no html5)
+          //document.getElementById('avatar-url').value = url;
+        } else {
+          console.log('Could not upload file.');
+        }
+      }
+    };
+    xhr.send(file);
+  }
+
 });
 
 
 // ***CARD 3*** enter description
 $('#contentCard3').on('launch', function () {
   var charLength = $('#descripText').val().length;
-
   if (charLength === 0) {
     $('#descripText').val("Enter text here...");
-
     $('#descripText').one('focus', function () { //jQuery alt for fn () {arg, {once: true}}
       $(this).val("");
     });
   }
-
   $('#descripText').keyup(function () { //TODO: check compatibility of keyup with phone browser input keyboards
     charLength = $(this).val().length;
     $('#charRef').text(charLength + "/140");
-
     if (charLength > 0) {             //will give true for default text also, check...
       reportParams.description = $('#descripText').val();
     }
@@ -269,13 +355,41 @@ $('#contentCard4').on('launch', function () {
   slideThreshold = 0.9, //Slider triggers submit function at 90% swipe width
   slideTranslate = 0;
 
+  $('#submitKnob').on('click', function (e) {
+  cardTracker += 1; //cardTracker value override, skip t&c card & arrive at thanks card
+  $('#next').trigger('click');
+  //Push input values
+  $.put('/report/' + card_id, {
+    location: reportParams.location,
+    water_depth: reportParams.height,
+    text: reportParams.description,
+    created_at: new Date().toISOString()
+  }, function (putResult) {
+    console.log('Report ID json: ' + putResult);
+    if (putResult > 0) {
+      console.log('Making getAllReports call');
+      $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function (getResult) {
+        if (getResult.statusCode === 200) {
+          console.log('getAllReports call successful');
+        } else {
+          console.log('getAllReports call failed');
+        }
+      });
+    }
+  });
+});
+
+/*
   $('#submitKnob').on('touchstart mousedown', function (e) {
-    slideStartPos = e.touches[0].pageX;
+    //slideStartPos = e.touches[0].pageX;
+    slideStartPos = e.pageX;
     slidePressed = true;
   });
+  //$('#reviewSubmit').on('touchmove mousemove', function (e) {
   $('#reviewSubmit').on('touchmove mousemove', function (e) {
-    e.preventDefault();
-    slideDragPos = e.touches[0].pageX;
+    //e.preventDefault();
+    //slideDragPos = e.touches[0].pageX;
+    slideStartPos = e.pageX;
     slideTranslate = slideDragPos - slideStartPos;
     if (slidePressed && slideTranslate >= 0 && slideTranslate < slideRange) {
       $('#submitKnob').css({
@@ -288,7 +402,6 @@ $('#contentCard4').on('launch', function () {
         cardTracker += 1; //cardTracker value override, skip t&c card & arrive at thanks card
         $('#next').trigger('click');
         //Push input values
-        var card_id = window.location.pathname.split('/').pop();
         $.put('/report/' + card_id, {
           location: reportParams.location,
           water_depth: reportParams.height,
@@ -324,6 +437,7 @@ $('#contentCard4').on('launch', function () {
   $('#linkToTandC').click(function () { //Launch terms & conditions
     $('#next').trigger('click');
   });
+*/
 });
 
 
@@ -343,6 +457,7 @@ $('#contentCard6').on('launch', function () {
     'background-color': 'white',
     'opacity': '0.1'
   });
+  //uploadFile(photo, uploadLink.signedRequest, uploadLink.url);
   $('#cardFrame').delay(2000).fadeOut(500);
   $('#screen').delay(2000).fadeOut(500);
   //delay 2500, open petajakarta.id

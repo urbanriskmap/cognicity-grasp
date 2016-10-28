@@ -57,7 +57,7 @@ module.exports = function(app, report_card, logger, s3) {
 
   app.get('/report/imageupload/:card_id', function(req, res, next){
     var s3params = {
-      Bucket: "timageuploadpetabencana",
+      Bucket: "testimageuploadpetabencana",
       Key: req.params.card_id,
       ACL: 'public-read'
     };

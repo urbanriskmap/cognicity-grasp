@@ -208,7 +208,7 @@
   /* CARD 2 - add photo */
   #ghostDiv {
     position: fixed;
-    display: block;
+    display: none;
   }
 
   #photoButtonWrapper {
