@@ -87,12 +87,6 @@ $.extend({
   }
 });
 
-$.extend({
-  get: function (url, data, callback) {
-    return _ajax_request(url, data, callback, 'GET');
-  }
-});
-
 // ***CARD 0*** get/set location
 $('#contentCard0').on('launch', function () {
   var cardmap = L.map('cardMapWrapper'),
@@ -348,7 +342,7 @@ $('#contentCard3').on('launch', function () {
           console.log('Report ID json: ' + putResult);
           if(putResult > 0){
             console.log('Making getAllReports call');
-            $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function(getResult){
+            $.get('http://localhost:3000/report/confirmedReports/' + 0, function(getResult){
               if (getResult.statusCode === 200) {
                 console.log('getAllReports call successful');
               } else {
