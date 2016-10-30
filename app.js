@@ -22,9 +22,10 @@ var s3 = new AWS.S3(
       secretAccessKey : process.env.secretAccessKey  || ''
     });
 
+
 // Grasp objects
 // TODO: put this in config file
-var frontEndOnly = true;
+var frontEndOnly = false;
 if (frontEndOnly){
   var ReportCard = require('./mockReportCard');
 } else {

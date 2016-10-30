@@ -87,11 +87,6 @@ $.extend({
   }
 });
 
-$.extend({
-  get: function (url, data, callback) {
-    return _ajax_request(url, data, callback, 'GET');
-  }
-});
 
 var card_id = window.location.pathname.split('/').pop();
 //    uploadLink;
@@ -255,8 +250,8 @@ $('#contentCard2').on('launch', function () {
     $('#ghostCapture').change(function () {
       photo = $('#ghostCapture')[0].files[0];
       if (photo) {
-        console.log(photo);
-        $.get('/report/imageupload/' + card_id, null, function (response) {
+        $.get('/report/imageupload/' + card_id, { 'file_type': photo.type}, function(response) {
+          response = JSON.parse(response);
           uploadFile(photo, response.signedRequest, response.url);
         });
       }
@@ -267,8 +262,8 @@ $('#contentCard2').on('launch', function () {
     $('#ghostCapture').change(function () {
       photo = $('#ghostCapture')[0].files[0];
       if (photo) {
-        console.log(photo);
-        $.get('/report/imageupload/' + card_id, null, function (response) {
+        $.get('/report/imageupload/' + card_id, { 'file_type': photo.type}, function(response) {
+          response = JSON.parse(response);
           uploadFile(photo, response.signedRequest, response.url);
         });
       }
@@ -300,22 +295,19 @@ $('#contentCard2').on('launch', function () {
   //Function to carry out the actual PUT request to S3
   //using the signed request from the app.
   function uploadFile(file, signedRequest, url) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('PUT', signedRequest);
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          $('#photoButtonWrapper').hide();
-          $('#canvasWrapper').show();
-          drawOnCard(file);
-          //document.getElementById('preview').src = url; //replace with reviewImg code, alt place img (no html5)
-          //document.getElementById('avatar-url').value = url;
-        } else {
-          console.log('Could not upload file.');
-        }
-      }
-    };
-    xhr.send(file);
+    $.ajax({
+            url: signedRequest,
+            type: 'PUT',
+            data: file,
+            contentType: false,
+            processData: false,
+            cache: false,
+            error: function(data){
+              console.log("error");
+              console.log(data);
+            },
+            success: function() { console.log("uploaded image successfully!"); }
+    });
   }
 });
 

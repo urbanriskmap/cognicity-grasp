@@ -58,8 +58,8 @@ module.exports = function(app, report_card, logger, s3) {
   app.get('/report/imageupload/:card_id', function(req, res, next){
     var s3params = {
       Bucket: "testimageuploadpetabencana",
-      Key: req.params.card_id,
-      ACL: 'public-read'
+      Key: req.params.card_id + ".png",
+      ContentType: req.query.file_type, 
     };
     s3.getSignedUrl('putObject', s3params, function(err, data){
       if (err){
@@ -70,6 +70,7 @@ module.exports = function(app, report_card, logger, s3) {
           signedRequest : data,
           url: "https://"+s3params.Bucket + ".s3.amazonaws.com/" + s3params.Key
         };
+        logger.debug( "s3 signed request: " + returnData.signedRequest); 
         res.write(JSON.stringify(returnData));
         res.end();
       }
