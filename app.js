@@ -15,7 +15,13 @@ var express = require('express'); // web
 var bodyParser = require('body-parser'); // web body parse
 
 // Grasp objects
-var ReportCard = require('./ReportCard');
+// TODO: put this in config file
+var frontEndOnly = false;
+if (frontEndOnly){
+  var ReportCard = require('./mockReportCard');
+} else {
+  var ReportCard = require('./ReportCard');
+}
 var Bot = require('./Bot');
 
 // Local config
@@ -67,10 +73,18 @@ var bot = new Bot(config.bot, dialogue, report_card, logger);
 // Configure example server user express
 var app = express();
 app.use(bodyParser.json());
+
+app.use("/", express.static(__dirname + '/public/'));
 app.use("/css", express.static(__dirname + '/public/css'));
+app.use("/img", express.static(__dirname + '/public/img'));
+app.use("/js", express.static(__dirname + '/public/js'));
+app.use("/svg", express.static(__dirname + '/public/svg'));
+app.use("/vendor/css", express.static(__dirname + '/vendor/css'));
+app.use("/vendor/js", express.static(__dirname + '/vendor/js'));
+app.use("/test", express.static(__dirname + '/test'));
 // Listen for report card requests
 app.listen(3000, function(){
-    logger.info('Express listening');
+    logger.info('Express listening on port 3000');
 });
 // API endpoints
 require('./api')(app, report_card, logger);

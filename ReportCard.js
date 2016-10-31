@@ -2,6 +2,7 @@
 
 // Node requirements
 var shortid = require('shortid');
+var string = require('string');
 
 /**
  * A ReportCard object manages requests and receiepts of user reports
@@ -39,7 +40,7 @@ ReportCard.prototype = {
     */
    logger: null,
 
-  /**
+   /**
    * Private method to generate card id (nested function allows testing)
    */
   _generate_id : function(){
@@ -154,7 +155,7 @@ ReportCard.prototype = {
     );
   },
 
-    /**
+  /**
      * Check status of card in grasp_cards table
      * Call the callback with result object once query is succesful.
      *
@@ -162,78 +163,105 @@ ReportCard.prototype = {
      * @param {string} card_id Unique card identifier
      * @param {function} callback Callback function for handling status result object
      */
-    _checkCardStatus: function(card_id, callback){
+  _checkCardStatus: function(card_id, callback){
 
-      var self = this;
+    var self = this;
 
-      var filter = function(err, result){
-        if (err){
-          self.logger.error(err);
-          callback(err, null);
-        }
-        else if (result.length > 0){
-          self.logger.info('Checked card '+card_id+' is valid');
-          callback(null, result[0]);
-        }
-        else {
-          self.logger.info('Checked card '+card_id+' was not found in database');
-          callback(null, {received : null});
-        }
-      };
+    var filter = function(err, result){
+      if (err){
+        self.logger.error(err);
+        callback(err, null);
+      }
+      else if (result.length > 0){
+        self.logger.info('Checked card '+card_id+' is valid');
+        callback(null, result[0]);
+      }
+      else {
+        self.logger.info('Checked card '+card_id+' was not found in database');
+        callback(null, {received : null});
+      }
+    };
 
-      self.dbQuery(
-        {
-        text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
-        values : [ card_id ]
-       },
-       filter
-     );
-   },
-
-   //TODO - jsdoc
-   _insertReport: function(card_id, report_object, callback){
-
-     var self = this;
-
-     self.dbQuery({
-       text: "INSERT INTO grasp_reports (card_id) VALUES ($1) RETURNING pkey;",
-       values: [ card_id ]
+    self.dbQuery(
+      {
+      text: "SELECT received FROM grasp_cards WHERE card_id = $1;",
+      values : [ card_id ]
      },
-     function(err, result){
-       if (err){
-         self.logger.error(err);
-         callback(err, null);
-       }
-       else {
-         self._updateGraspCards(card_id, result[0].pkey, callback);
-       }
-     }
+     filter
    );
-   },
+  },
 
-   //TODO - jsdoc
-   _updateGraspCards: function(card_id, report_id, callback){
+  /**
+   * Insert report into the grasp_reports table
+   * Call the _updateGraspCard method with the card_id and report_id once query is successful
+   *
+   * Function to insert report
+   * @param  {string} created_at    ISO8601 format date string
+   * @param  {string} card_id       Unique Card Id
+   * @param  {string} location      Geo coordinates in WKT format (long lat)
+   * @param  {string} water_depth   Water depth selected on the slider
+   * @param  {string} text          Description of the report
+   * @param  {bigint} image_id      Unique Image Id
+   */
+  _insertReport: function(created_at, card_id, location, water_depth, text, image_id, callback){
 
-     var self = this;
+    var self = this;
 
-     self.dbQuery(
-       {
-       text: "UPDATE grasp_cards SET received = TRUE, report_id = $1 WHERE card_id = $2",
-       values: [ report_id, card_id ]
-       },
-        function(err, result){
-          if (err){
+    self.dbQuery({
+      text: "INSERT INTO grasp_reports (card_id, " +
+            "location, " +
+            "water_depth, "+
+            "text, " +
+            "created_at, " +
+            "image_id, " +
+            "status) " +
+            "VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5, $6, $7) " +
+            "RETURNING pkey;",
+      values: [ card_id, location, water_depth, text, created_at, image_id, "Confirmed" ]
+    },  function(err, result) {
+          if (err) {
             self.logger.error(err);
             callback(err, null);
-          }
-          else {
-            self._insertLogTbl(card_id, 'REPORT RECEIVED', function(card_id){
-              callback(report_id);
-            });
+          } else {
+            self.logger.info('Report for cardId: ' + card_id + ' submitted successfully');
+            self._updateGraspCard(card_id, result[0].pkey, callback);
           }
         }
-      );
-   },
+    );
+  },
+
+  /**
+   * Update the card status as Received and add ReportId to the entry in grasp_cards table
+   * Call the _insertLogTbl with card_id once query is successful
+   *
+   * Function to update card status
+   * @param  {string} created_at    ISO8601 format date string
+   * @param  {string} card_id       Unique Card Id
+   * @param  {string} location      Geo coordinates in WKT format (long lat)
+   * @param  {string} water_depth   Water depth selected on the slider
+   * @param  {string} text          Description of the report
+   */
+  _updateGraspCard: function(card_id, report_id, callback){
+
+    var self = this;
+
+    self.dbQuery({
+      text: "UPDATE grasp_cards SET received = TRUE, report_id = $1 WHERE card_id = $2",
+       values: [ report_id, card_id ]
+    },  function(err, result) {
+          if (err) {
+            self.logger.error(err);
+            callback(err, null);
+          } else {
+            self.logger.info('Status for cardId: ' + card_id + ' set as Received');
+            self._insertLogTbl(card_id, 'REPORT RECEIVED', function(card_id) {
+              callback(null, report_id);
+            });
+            self.logger.info('Log updated successfully for cardId: ' + card_id);
+          }
+        }
+    );
+  },
 
   /**
    * Create card unique id, register in database, and return value via callback
@@ -266,16 +294,67 @@ ReportCard.prototype = {
        self.logger.info('Checked card '+card_id+' was found invalid by shortid');
        callback(null, {received : null});
      }
-   },
+  },
 
-   // Insert report from user (i.e. from server)
-   // TODO jsdoc
-   insertReport: function(card_id, report_object, callback){
+  /**
+   * Insert report from user, update card status and update log entry
+   * @param  {string} created_at    ISO8601 format date string
+   * @param  {string} card_id       Unique Card Id
+   * @param  {string} location      Geo coordinates in WKT format (long lat)
+   * @param  {string} water_depth   Water depth selected on the slider
+   * @param  {string} text          Description of the report
+   * @param  {bigint} image_id      Unique Image Id
+   */
+  insertReport: function(created_at, card_id, location, water_depth, text, image_id, callback){
 
-     var self = this;
+    var self = this;
+    self.logger.info('Got insert report call to Reportcard');
 
-     self._insertReport(card_id, report_object, callback);
-   },
+    //Check if all entries are valid
+    if(shortid.isValid(card_id) &&
+      !string(created_at).isEmpty() &&
+      !string(location).isEmpty() &&
+      !string(water_depth).isEmpty() &&
+      !string(text).isEmpty() &&
+      image_id !== null) {
+      self._insertReport(created_at, card_id, location, water_depth, text, image_id, callback);
+    } else {
+      self.logger.error('Invalid input received from UI');
+      callback(null, {received : 'invalid'});
+    }
+  },
+
+  getAllReports: function(callback){
+    var self = this;
+    var queryObject = {
+        text: "SELECT 'FeatureCollection' As type, " +
+              "array_to_json(array_agg(f)) As features " +
+              "FROM (SELECT 'Feature' As type, " +
+              "ST_AsGeoJSON(lg.location)::json As geometry, " +
+              "row_to_json( " +
+              "(SELECT l FROM " +
+              "(SELECT pkey, " +
+              "created_at at time zone 'EDT' created_at, " +
+              "status, " +
+              "text, " +
+              "image_id, " +
+              "network, " +
+              "water_depth) " +
+              " As l) " +
+              ") As properties " +
+              "FROM grasp_reports As lg, grasp_cards As lh WHERE lg.card_id = lh.card_id" +
+              " ) As f ;",
+        values: [ ] };
+    self.dbQuery(queryObject, function(error, result) {
+              if (error) {
+                self.logger.error(error);
+                callback(error, null);
+              } else {
+                self.logger.info('getAllReports call successful; returning results');
+                callback(error, result);
+              }
+    });
+  },
 
    // Watch table
    watchCards: function(network, callback){
@@ -292,7 +371,10 @@ ReportCard.prototype = {
        // Return the listen notification
        client.on('notification', function(msg) {
          try{
+          self.logger.info('Msg: ' + msg);
+          self.logger.info('Payload: ' + msg.payload);
           var notification = JSON.parse(msg.payload);
+          self.logger.info('Parse successful');
           if (notification.grasp_cards.network === network){
             self.logger.info('Received card submission');
             callback(null, notification.grasp_cards);

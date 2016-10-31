@@ -150,9 +150,14 @@ Bot.prototype = {
         var self = this;
 
         self.report_card.watchCards(self.config.network.name, function(err, report){
-          callback(err, report.username,
-                        report.username+'- '+self._getDialogue(self.dialogue.confirmation,
-                          report.language)+' https://petabencana.id/jakarta/'+report.report_id);
+          if (err){
+            self.logger.error("Could not watch cards from Bot.js"); 
+          } else {
+            callback(err, report.username,
+
+                     report.username+'- '+self._getDialogue(self.dialogue.confirmation,
+                                                            report.language)+' https://petabencana.id/jakarta/'+report.report_id);
+          }
         });
       }
 };

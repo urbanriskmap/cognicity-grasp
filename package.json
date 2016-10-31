@@ -29,7 +29,9 @@
     "massive": "^2.5.0",
     "pg": "^6.1.0",
     "shortid": "^2.2.6",
-    "winston": "^2.2.0"
+    "string": "^3.3.3",
+    "winston": "^2.2.0",
+    "topojson": "^1.6.26"
   },
   "devDependencies": {
     "jshint": "^2.9.3",
