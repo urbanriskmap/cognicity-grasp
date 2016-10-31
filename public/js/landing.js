@@ -70,6 +70,7 @@ $('#contentCard' + cardTracker).trigger('launch');
 $('#prev').prop('disabled', true);
 }); //close document.ready event
 
+//AJAX doesn't have convenient $.put & $.delete methods
 function _ajax_request(url, data, callback, method) {
   return $.ajax({
     dataType: "json",
@@ -84,12 +85,6 @@ function _ajax_request(url, data, callback, method) {
 $.extend({
   put: function (url, data, callback) {
     return _ajax_request(url, data, callback, 'PUT');
-  }
-});
-
-$.extend({
-  get: function (url, data, callback) {
-    return _ajax_request(url, data, callback, 'GET');
   }
 });
 
@@ -169,7 +164,7 @@ cardmap.once('locationfound', function (e) {
   $('#resetLocation').prop('disabled', false);
   $('#next').prop('disabled', false);
 
-  reportParams.location = gpsLocation.lng + " " + gpsLocation.lat;
+  reportParams.location = gpsLocation;
 });
 
 //Geolocate error function
@@ -212,7 +207,7 @@ $('#setLocation').click(function () {
   $('#setLocation').prop('disabled', true);
   $('#next').prop('disabled', false);
 
-  reportParams.location = center.lng + " " + center.lat;
+  reportParams.location = center;
 });
 
 $('#resetLocation').click(function () {
@@ -339,23 +334,15 @@ $('#contentCard3').on('launch', function () {
 
       if (slideTranslate >= (slideThreshold * slideRange)) { //CODE for SUBMIT BUTTON here...
         var card_id = window.location.pathname.split('/').pop();
-        $.put('/report/' + card_id,
-        {location: reportParams.location,
+        var data = {
+          location: reportParams.location,
           water_depth: reportParams.height,
           text: reportParams.description,
-          created_at: new Date().toISOString()
-        }, function(putResult) {
-          console.log('Report ID json: ' + putResult);
-          if(putResult > 0){
-            console.log('Making getAllReports call');
-            $.get('http://localhost:3000/report/confirmedReports/' + 0, null, function(getResult){
-              if (getResult.statusCode === 200) {
-                console.log('getAllReports call successful');
-              } else {
-                console.log('getAllReports call failed');
-              }
-            });
-          }
+          created_at: new Date().toISOString(),
+          image_id: 123 //Placeholder ID until AWS integration is complete
+        };
+        $.put('/report/' + card_id, data, function(result) {
+          console.log('Report ID json: ' + result);          
         });
 
         cardTracker = cardTracker + 1; //cardTracker value override, skip t&c card & arrive at thanks card
