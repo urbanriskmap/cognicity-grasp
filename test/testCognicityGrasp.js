@@ -165,9 +165,9 @@ describe( 'Report Card with real db backing', function(){
     username: 'testUsername',
     network: 'testNetwork',
     language: 'testLanguage',
-    created_at: "2016-10-25 10:17:21.658-04", //for insert report
-    location: "0101000020E6100000AA3583AE33C651C0FC5FBF71632E4540",
-    text: "Test description",
+    created_at: '2016-10-25 10:17:21.658-04', //for insert report
+    location: '-71.0867635 42.359915',
+    text: 'Test description',
     water_depth: 99,
   };
 
@@ -204,16 +204,14 @@ describe( 'Report Card with real db backing', function(){
     });
   });
 
-  describe("add a watch notification and then submit", function(){
-    after( 'check adding watch card', function(done){
-      ReportCard.watchCards(testData.network, function(err, cards){
-        test.value(err).is(null);
-        test.value(cards[0]).is(testData.card_id);
-        done();
-      });
-      ReportCard.insertReport(testData.created_at, testData.card_id, testData.location, testData.water_depth, testData.text, function(err){
-        test.value(err).is(null);
-      });
+  it( 'check adding watch card', function(done){
+    ReportCard.watchCards(testData.network, function(err, cards){
+      test.value(err).is(null);
+      test.value(cards.username).is(testData.username);
+      done();
+    });
+    ReportCard.insertReport(testData.created_at, testData.card_id, testData.location, testData.water_depth, testData.text, function(err){
+      test.value(err).is(null);
     });
   });
 });
