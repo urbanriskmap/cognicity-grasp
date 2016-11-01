@@ -25,7 +25,7 @@ var floodGateIcon = L.icon({
 });
 var waterwaysLinestyle = {
   "color": "#787878",
-   "weight": 1.5,
+   "weight": 2,
    "opacity": 0.65
 };
 
@@ -113,6 +113,7 @@ function updateMapView(cityObject) {
   layerToggle.addTo(map);
   cityLayers.addTo(map);
 }
+
 
 //Add click events for different cities
 $('#Cambridge').click(function () {
