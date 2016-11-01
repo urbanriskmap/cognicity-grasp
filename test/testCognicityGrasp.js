@@ -153,24 +153,70 @@ describe( 'ReportCard', function(){
 });
 
 describe( 'Report Card with real db backing', function(){
-  var pg = require('pg'); 
-  var config = require('../sample-grasp-config'); 
-  var mockReportCard = require('../ReportCard'); 
-  mockReportCard = new mockReportCard(config, pg, {}); 
-  mockReportCard._generate_id = function(){
-    return 'testtest'; 
-  }; 
+  var pg = require('pg');
+  var logger = require('winston');
+  var ReportCard = require('../ReportCard');
+  ReportCard = new ReportCard(config, pg, logger);
+  ReportCard._generate_id = function(){
+    return 'testtest';
+  };
+  var testData = {
+    card_id: ReportCard._generate_id(),
+    username: 'testUsername',
+    network: 'testNetwork',
+    language: 'testLanguage',
+    created_at: "2016-10-25 10:17:21.658-04", //for insert report
+    location: "0101000020E6100000AA3583AE33C651C0FC5FBF71632E4540",
+    text: "Test description",
+    water_depth: 99,
+  };
+
   before( 'clear the database', function(done){
-    pg.query("DELETE FROM * WHERE card_id = 'testtest';"); 
-    done(); 
-  }); 
+    pg.connect(config.pg.conString, function(err, client, pgDone){
+      client.query("DELETE FROM grasp_cards WHERE card_id = 'testtest';", function(err, result){
+        test.value(err).is(null);
+        client.query("DELETE FROM grasp_reports WHERE card_id = 'testtest';", function(err, result){
+          test.value(err).is(null);
+          done();
+          pgDone();
+        });
+      });
+    });
+  });
 
-  it( 'check issue card', function(){
-    mockReportCard.issueCard('testUsername'); 
-  }); 
+  it( 'check issue card', function(done){
+    ReportCard.issueCard( testData.username, testData.network, testData.language, function(err, result){
+      test.value(err).is(null); //make sure the insert doesn't give an error
+      pg.connect(config.pg.conString, function(err, client, pgDone){
+        client.query("SELECT * FROM grasp_cards WHERE card_id = 'testtest';", function(err, result){
+          test.value(err).is(null);
+          test.value(result.rows.length).is(1);
+          var resultObject = result.rows[0];
+          test.value(resultObject.card_id).is(testData.card_id);
+          test.value(resultObject.username).is(testData.username);
+          test.value(resultObject.network).is(testData.network);
+          test.value(resultObject.language).is(testData.language);
+          test.value(resultObject.received).is(false);
+          done();
+          pgDone();
+        });
+      });
+    });
+  });
 
-  
-}); 
+  describe("add a watch notification and then submit", function(){
+    after( 'check adding watch card', function(done){
+      ReportCard.watchCards(testData.network, function(err, cards){
+        test.value(err).is(null);
+        test.value(cards[0]).is(testData.card_id);
+        done();
+      });
+      ReportCard.insertReport(testData.created_at, testData.card_id, testData.location, testData.water_depth, testData.text, function(err){
+        test.value(err).is(null);
+      });
+    });
+  });
+});
 
 // TODO test for confirm method
 // Test harness for CognicityGrasp object
