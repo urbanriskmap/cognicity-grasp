@@ -16,7 +16,7 @@ var bodyParser = require('body-parser'); // web body parse
 
 // Grasp objects
 // TODO: put this in config file
-var frontEndOnly = false;
+var frontEndOnly = true;
 if (frontEndOnly){
   var ReportCard = require('./mockReportCard');
 } else {
