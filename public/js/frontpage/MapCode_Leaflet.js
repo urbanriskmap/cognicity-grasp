@@ -13,7 +13,7 @@ var pumpIcon = L.icon({
   iconAnchor: [10, -5]
 });
 var reportIcon = L.icon({
-  iconUrl: '/img/floodIcon.png',
+  iconUrl: '/img/floodIcon.svg',
   iconSize: [25, 25],
   iconAnchor: [10, -5]
 });
