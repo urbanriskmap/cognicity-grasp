@@ -87,7 +87,7 @@ app.listen(3000, function(){
     logger.info('Express listening on port 3000');
 });
 // API endpoints
-require('./api')(app, report_card, logger);
+//require('./api')(app, report_card, logger);
 
 // Parse some user input, and return response
 bot.ahoy('@nopemartians', 'en', function(err, result){
