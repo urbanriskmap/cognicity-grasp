@@ -1,12 +1,11 @@
 'use strict';
 // Node modules
 var test = require('unit.js');
-var shortid = require('shortid');
 // Test modules
-var ReportCard = require('../ReportCard');
-var Bot = require('../Bot');
+var ReportCard = require('../modules/ReportCardBot.js');
+var Bot = require('../modules/Bot.js');
 
-var config = require('../sample-grasp-config');
+var config = require('../sample-bot-config');
 var dialogue = require('../sample-bot-dialogue');
 
 // Create grasp object with empty objects
@@ -17,7 +16,7 @@ var report_card = new ReportCard(
                   {}
 );
 
-var bot = new Bot(config.bot, dialogue, {}, {});
+var bot = new Bot(config, dialogue, {}, {});
 
 // Test harness for ReportCard object
 describe( 'ReportCard', function(){
@@ -63,90 +62,6 @@ describe( 'ReportCard', function(){
       fail_database = 0;
       report_card._generate_id = old_generateID;
       report_card.issueCard = old_insertCard;
-    });
-  });
-
-  // Test suite for checkCardStatus function
-  describe( 'Succesful checkCardStatus', function(){
-    var old_shortidIsValid, old_loggerDebug, old_loggerInfo, old_loggerError, old_dbQuery, isValid = false;
-
-    before(function(){
-      old_shortidIsValid = shortid.isValid;
-      shortid.isValid = function(){
-        if (isValid === true){
-          return (true);
-        }
-        else {
-          return (false);
-        }
-      };
-      old_loggerDebug = report_card.logger.debug;
-      report_card.logger.debug = function(value){
-        console.log('Mocked logger [debug]: '+value);
-      };
-      old_loggerInfo = report_card.logger.info;
-      report_card.logger.info = function(value){
-        console.log('Mocked logger [info]: '+value);
-      };
-      old_loggerError = report_card.logger.error;
-      report_card.logger.error = function(value){
-        console.log('Mocked logger [error]: '+value);
-      };
-      old_dbQuery = report_card.dbQuery;
-    });
-    it ('Catches invalid card id', function(){
-      isValid = false;
-      report_card.checkCardStatus('123', function(err, value){
-        test.value(err).is(null);
-        test.value(value).is({received : null});
-      });
-    });
-
-    it ('Filters a false result from _checkCardStatus', function(){
-      isValid = true;
-      report_card.dbQuery = function(object, callback){
-        callback(null, [{received : false}]);
-      };
-      report_card.checkCardStatus('123', function(err, value){
-        test.value(err).is(null);
-        test.value(value.received).is(false);
-      });
-      report_card.dbQuery = old_dbQuery;
-    });
-
-    it ('Filters a true result from _checkCardStatus ', function(){
-      isValid = true;
-      report_card.dbQuery = function(object, callback){
-        callback(null, [{received : true}]);
-      };
-      report_card.checkCardStatus('123', function(err, value){
-        test.value(err).is(null);
-        test.value(value.received).is(true);
-      });
-      report_card.dbQuery = old_dbQuery;
-    });
-
-    it ('Filters an invalid result from _checkCardStatus ', function(){
-      isValid = true;
-      report_card.dbQuery = function(object, callback){
-        callback(null, []);
-      };
-      report_card.checkCardStatus('123', function(err, value){
-        test.value(err).is(null);
-        test.value(value.received).is(null);
-      });
-      report_card.dbQuery = old_dbQuery;
-    });
-
-    it ('Catches database error for _checkCardStatus', function(){
-      isValid = true;
-      report_card.dbQuery = function(object, callback){
-        callback(new Error('Database query error'));
-      };
-      report_card.checkCardStatus('123', function(err, value){
-        test.value(err).is(Error());
-        test.value(value).is(null);
-      });
     });
   });
 });

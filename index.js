@@ -18,4 +18,4 @@ module.exports = function(config, logger, pg){
 	var report_cards = new ReportCardBot(config, logger, pg);
 	// Return Bot
 	return new Bot(bot_config, bot_dialogue, report_cards, logger);
-}
+};
