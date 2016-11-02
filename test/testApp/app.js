@@ -68,11 +68,11 @@ bot.ahoy('@nopemartians', 'en', function(err, result){
 // Parse some user input, and return response
 bot.parseRequest('@nopemartians', 'Please send me a flood report', 'in', function(err, result){
 	console.log('Bot> @nopemartians '+result);
+	if (err){
+		exitWithStatus(1);
+	}
 });
 
 bot.confirm(function(err, username, message){
 	console.log('Bot> '+message);
 });
-
-// Graceful exit
-exitWithStatus(0);

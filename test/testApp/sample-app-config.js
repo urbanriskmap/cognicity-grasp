@@ -14,7 +14,7 @@ config.pg = {};
 // config.pg.conString = 'postgres://postgres@localhost/cognicity';
 
 /* Sample connection string using environment variables from AWS Elastic Beanstalk. */
-config.pg.conString = 'postgres://postgres@127.0.0.1:5432/cognicity_schema_2_0_2?ssl=false';
+config.pg.conString = '';
 /*	On other platforms you would replace those variables as necessary
 */
 

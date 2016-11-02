@@ -9,7 +9,7 @@ var fork = require('child_process').fork;
 //Test harness for server.js script
 describe( 'testApp.js', function() {
 
-	// Can the app launch - and return with a process.exit(0)
+	// Can the app launch - and return with a process.exit(1) after database query fails
 	// This tests much of the code in server.js
 	it( 'should launch with default configuration and fail with an error', function(done) {
 		// Set timeout high to let node launch the child process. Typically takes 1000ms.
@@ -31,7 +31,7 @@ describe( 'testApp.js', function() {
 
 		// Once the child has exited, test the exit code and end the async mocha test
 		function doTest() {
-			test.value(child.exitCode).is(0);
+			test.value(child.exitCode).is(1);
 			done();
 		}
 
