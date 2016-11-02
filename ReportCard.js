@@ -285,7 +285,7 @@ ReportCard.prototype = {
 
      if(shortid.isValid(card_id) && !string(created_at).isEmpty() && !string(location).isEmpty() && !string(water_depth).isEmpty() && !string(text).isEmpty()) {
        self.dbQuery({
-         text: "INSERT INTO grasp_reports (card_id, location, water_depth, text, created_at, status) VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5, $6) RETURNING pkey;",
+         text: "INSERT INTO grasp_reports (card_id, location, water_depth, text, created_at,  status, image_id) VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5, $6, null) RETURNING pkey;",
          values: [ card_id, location, water_depth, text, created_at, "Confirmed" ]
        },
          function(insertReportError, insertReportResult){
