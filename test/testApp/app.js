@@ -25,7 +25,7 @@ try {
 	throw e;
 }
 logPath += path.sep;
-logPath += config.logger.filename + ".log";
+logPath += "./test/testApp.log";
 
 // Setup logger
 logger
