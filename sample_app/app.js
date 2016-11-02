@@ -14,19 +14,8 @@ var path = require('path');       // directory paths
 var express = require('express'); // web
 var bodyParser = require('body-parser'); // web body parse
 
-// Grasp objects
-// TODO: put this in config file
-var frontEndOnly = false;
-if (frontEndOnly){
-  var ReportCard = require('./mockReportCard');
-} else {
-  var ReportCard = require('./ReportCard');
-}
-var Bot = require('./Bot');
-
-// Local config
-var config = require('./sample-grasp-config');
-var dialogue = require('./sample-bot-dialogue');
+var config = require('./sample-app-config.js');
+var Bot = require('../index.js');
 
 // Logging configuration
 var logPath = ( config.logger.logDirectory ? config.logger.logDirectory : __dirname );
@@ -67,8 +56,7 @@ function exitWithStatus(exitStatus) {
 logger.info("Application starting...");
 
 // GRASP objects
-var report_card = new ReportCard(config, pg, logger);
-var bot = new Bot(config.bot, dialogue, report_card, logger);
+var bot = Bot(config, logger, pg);
 
 // Configure example server user express
 var app = express();

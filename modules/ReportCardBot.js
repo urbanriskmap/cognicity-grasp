@@ -12,12 +12,12 @@ var string = require('string');
  */
 var ReportCardBot = function(
   config,
-  pg,
-  logger
+  logger,
+  pg
 ){
   this.config = config;
-  this.pg = pg;
   this.logger = logger;
+  this.pg = pg;
 };
 
 ReportCardBot.prototype = {
@@ -28,17 +28,17 @@ ReportCardBot.prototype = {
    */
    config: null,
 
-  /**
-   * Instance of pg object from pg module
-   * @type {object}
-   */
-   pg: null,
-
    /**
     * Configured instance of logger object from Winston module
     * @type {object}
     */
    logger: null,
+
+  /**
+   * Instance of pg object from pg module
+   * @type {object}
+   */
+   pg: null,
 
    /**
    * Private method to generate card id (nested function allows testing)
