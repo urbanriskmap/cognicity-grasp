@@ -69,10 +69,10 @@ CREATE OR REPLACE FUNCTION public.update_all_reports_from_grasp()
 $BODY$
 	BEGIN
 		IF (TG_OP = 'UPDATE') THEN
-			INSERT INTO all_reports (fkey, created_at, text, source, lang, url, the_geom) SELECT NEW.pkey, NEW.created_at, NEW.text, 'twitter', NEW.lang, NEW.url, NEW.the_geom;
+			INSERT INTO all_reports (fkey, created_at, text, source, lang, url, the_geom) SELECT NEW.pkey, NEW.created_at, NEW.text, 'grasp', NEW.lang, NEW.url, NEW.the_geom;
 			RETURN NEW;
 		ELSIF (TG_OP = 'INSERT') THEN
-			INSERT INTO all_reports (fkey, created_at, text, source, lang, url, the_geom) SELECT NEW.pkey, NEW.created_at, NEW.text, 'twitter', NEW.lang, NEW.url, NEW.the_geom;
+			INSERT INTO all_reports (fkey, created_at, text, source, lang, url, the_geom) SELECT NEW.pkey, NEW.created_at, NEW.text, 'grasp', NEW.lang, NEW.url, NEW.the_geom;
 			RETURN NEW;
 		END IF;
 	END;
