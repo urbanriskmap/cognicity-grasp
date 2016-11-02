@@ -324,6 +324,7 @@ ReportCard.prototype = {
     }
   },
 
+
   getAllReports: function(callback){
     var self = this;
     var queryObject = {
