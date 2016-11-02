@@ -3,6 +3,7 @@
 // Node requirements
 var shortid = require('shortid');
 var string = require('string');
+var DataQuery = require('./lib/DataQuery.js');
 
 /**
  * A ReportCard object manages requests and receiepts of user reports
@@ -47,51 +48,7 @@ ReportCardBot.prototype = {
     return shortid.generate();
   },
 
-  /**
-   * DB query success callback
-   * @callback DbQuerySuccess
-   * @param {object} result The 'pg' module result object on a successful query
-   */
-
-	/**
-	 * Perform a query against the database using the parameterized query in the queryObject.
-	 * Call the callback with error information or result information.
-	 *
-	 * @param {object} queryObject Query object for parameterized postgres query
-	 * @param {string} queryObject.text The SQL query text for the parameterized query
-	 * @param {Array} queryObject.values Values for the parameterized query
-	 * @param {DataQueryCallback} callback Callback function for handling error or response data
-	 */
-	dbQuery: function(queryObject, callback){
-		var self = this;
-
-		self.logger.debug( "dataQuery: queryObject=" + JSON.stringify(queryObject) );
-
-		self.pg.connect(self.config.pg.conString, function(err, client, done){
-			if (err){
-				self.logger.error("dataQuery: " + JSON.stringify(queryObject) + ", " + err);
-				done();
-				callback( new Error('Database connection error') );
-				return;
-			}
-
-			client.query(queryObject, function(err, result){
-				if (err){
-					done();
-					self.logger.error( "dataQuery: Database query failed, " + err.message + ", queryObject=" + JSON.stringify(queryObject) );
-					callback( new Error('Database query error') );
-				} else if (result && result.rows){
-					self.logger.debug( "dataQuery: " + result.rows.length + " rows returned" );
-					done();
-					callback(null, result.rows);
-				} else {
-					// TODO Can we ever get to this point?
-					done();
-					callback( new Error('Unknown query error, queryObject=' + JSON.stringify(queryObject)) );
-				}
-			});
-		});
-  },
+	dbQuery: DataQuery,
 
   /**
    * Insert a record into the grasp_log table
