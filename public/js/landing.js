@@ -117,9 +117,15 @@ $('#contentCard0').on('launch', function () {
       $('#resetLocation').prop('disabled', false);
     }
   });
-  $('#next').click(function () { //get selected marker location coordinates
+  var getMarkerCenter = function () {
     center = cardmap.getCenter();
     reportParams.location = center;
+    console.log(reportParams.location);
+  };
+  $('#next').click(function () { //get selected marker location coordinates
+    if (cardTracker === 0 ) {
+      getMarkerCenter();
+    }
   });
 });
 
