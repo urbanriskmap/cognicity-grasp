@@ -265,6 +265,10 @@ $('#contentCard4').on('launch', function () {
             uploadFile(photo, card_id); //Upload photo
           }
           putReportData(card_id, reportParams.location, reportParams.height, reportParams.description); //Push input values
+          $.get('/reports/confirmed/', {}, function (error, response) {
+            console.log('Get All Reports successful');
+            console.log(response);
+          });
         }
       }
     });

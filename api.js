@@ -106,14 +106,14 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
-  app.get('/report/confirmedReports', function(req, res){
-    logger.debug('[/report/confirmedReports] In GetAllReports API');
+  app.get('/reports/confirmed/', function(req, res){
+    logger.debug('[/reports/confirmed/] In GetAllReports API');
     report_card.getAllReports(function(err, result){
       if(err) {
         res.send('Error - Get all reports failed');
-        logger.debug('[/report/confirmedReports] Get all reports failed');
+        logger.debug('[/reports/confirmed/] Get all reports failed');
       } else {
-        logger.debug('[/report/confirmedReports] Report fetch successful');
+        logger.debug('[/reports/confirmed/] Report fetch successful');
         var topology = topojson.topology(
                         { collection: result[0] },
                         { "property-transform": function(object){ return object.properties; } }

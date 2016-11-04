@@ -426,23 +426,30 @@ ReportCard.prototype = {
 
   getAllReports: function(callback){
     var self = this;
+    self.logger.info('In ReportCard.js getAllReports');
     var queryObject = {
         text: "SELECT 'FeatureCollection' As type, " +
               "array_to_json(array_agg(f)) As features " +
               "FROM (SELECT 'Feature' As type, " +
-              "ST_AsGeoJSON(lg.location)::json As geometry, " +
+              "ST_AsGeoJSON(gr.location)::json As geometry, " +
               "row_to_json( " +
               "(SELECT l FROM " +
-              "(SELECT pkey, " +
-              "created_at at time zone 'EDT' created_at, " +
-              "status, " +
-              "text, " +
-              "image_id, " +
-              "network, " +
-              "water_depth) " +
+              "(SELECT gc.pkey, " +
+              "gr.created_at at time zone 'EDT' created_at, " +
+              "gr.status, " +
+              "gr.text, " +
+              "gri.url_path, " +
+              "gri.image_id, " +
+              "gc.network, " +
+              "gr.water_depth) " +
               " As l) " +
               ") As properties " +
-              "FROM grasp_reports As lg, grasp_cards As lh WHERE lg.card_id = lh.card_id" +
+              "FROM grasp_reports As gr, " +
+              "grasp_cards As gc, " +
+              "grasp_report_images as gri " +
+              "WHERE gc.received = TRUE AND " +
+              "gr.card_id = gc.card_id AND " +
+              "gc.card_id = gri.card_id" +
               " ) As f ;",
         values: [ ] };
     self.dbQuery(queryObject, function(error, result) {
