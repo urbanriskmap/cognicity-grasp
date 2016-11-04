@@ -32,21 +32,21 @@ function uploadFile(file, id) {
   $.get('/report/imageupload/' + id, {'file_type': photo.type}, function (response) {
     response = JSON.parse(response);
     signedRequest = response.signedRequest;
-  });
-  $.ajax({
-    url: signedRequest,
-    type: 'PUT',
-    data: file,
-    contentType: false,
-    processData: false,
-    cache: false,
-    error: function (data) {
-      console.log("error");
-      console.log(data);
-    },
-    success: function () {
-      console.log("uploaded image successfully!");
-    }
+    $.ajax({
+      url: signedRequest,
+      type: 'PUT',
+      data: file,
+      contentType: false,
+      processData: false,
+      cache: false,
+      error: function (data) {
+        console.log("error uploading image");
+        console.log(data);
+      },
+      success: function () {
+        console.log("uploaded image successfully!");
+      }
+    });
   });
 }
 
