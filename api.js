@@ -3,7 +3,7 @@
 var topojson = require('topojson');
 
 // Example of card validation by HTTP server
-module.exports = function(app, report_card, logger) {
+module.exports = function(app, report_card, logger, s3) {
 
   app.put('/report/:card_id', function(req, res){
     report_card.checkCardStatus(req.params.card_id, function(err, result){
@@ -53,6 +53,28 @@ module.exports = function(app, report_card, logger) {
       } else if (result.received === true) {
         res.send('Error - report already received');
         logger.debug('[/report/:card_id] Rejected access for card '+req.params.card_id+ '- already received');
+      }
+    });
+  });
+
+  app.get('/report/imageupload/:card_id', function(req, res, next){
+    var s3params = {
+      Bucket: "testimageuploadpetabencana",
+      Key: req.params.card_id + ".png",
+      ContentType: req.query.file_type, 
+    };
+    s3.getSignedUrl('putObject', s3params, function(err, data){
+      if (err){
+        logger.error('could not get signed url from S3');
+        logger.error(err);
+      } else {
+        var returnData = {
+          signedRequest : data,
+          url: "https://"+s3params.Bucket + ".s3.amazonaws.com/" + s3params.Key
+        };
+        logger.debug( "s3 signed request: " + returnData.signedRequest); 
+        res.write(JSON.stringify(returnData));
+        res.end();
       }
     });
   });

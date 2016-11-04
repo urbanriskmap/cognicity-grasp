@@ -315,9 +315,8 @@ ReportCard.prototype = {
       !string(created_at).isEmpty() &&
       !string(location).isEmpty() &&
       !string(water_depth).isEmpty() &&
-      !string(text).isEmpty() &&
-      image_id !== null) {
-      self._insertReport(created_at, card_id, location, water_depth, text, image_id, callback);
+      !string(text).isEmpty()) {
+      self._insertReport(created_at, card_id, location, water_depth, text, 0, callback);
     } else {
       self.logger.error('Invalid input received from UI');
       callback(null, {received : 'invalid'});
