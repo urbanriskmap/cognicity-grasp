@@ -8,17 +8,17 @@ L.tileLayer('https://api.mapbox.com/styles/v1/asbarve/ciu0anscx00ac2ipgyvuieuu9/
 
 //Custom marker icons
 var pumpIcon = L.icon({
-  iconUrl: '/img/pumpIcon.svg',
+  iconUrl: '/svg/pumpIcon.svg',
   iconSize: [30, 30],
   iconAnchor: [20, 10]
 });
 var reportIcon = L.icon({
-  iconUrl: '/img/floodIcon.svg',
+  iconUrl: '/svg/floodIcon.svg',
   iconSize: [25, 25],
   iconAnchor: [18, 8]
 });
 var floodGateIcon = L.icon({
-  iconUrl: '/img/floodGate.svg',
+  iconUrl: '/svg/floodGate.svg',
   iconSize: [25, 25],
   iconAnchor: [18, 10],
 
