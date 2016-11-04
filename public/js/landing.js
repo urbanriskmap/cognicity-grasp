@@ -117,9 +117,15 @@ $('#contentCard0').on('launch', function () {
       $('#resetLocation').prop('disabled', false);
     }
   });
-  $('#next').click(function () { //get selected marker location coordinates
+  var getMarkerCenter = function () {
     center = cardmap.getCenter();
     reportParams.location = center;
+    console.log(reportParams.location);
+  };
+  $('#next').click(function () { //get selected marker location coordinates
+    if (cardTracker === 0 ) {
+      getMarkerCenter();
+    }
   });
 });
 
@@ -212,7 +218,7 @@ $('#contentCard3').on('launch', function () {
   $('#descripText').keyup(function () {
     charLength = $(this).val().length;
     $('#charRef').text(charLength + "/140");
-    if (charLength > 0) {             
+    if (charLength > 0) {
       reportParams.description = $('#descripText').val();
     }
   });

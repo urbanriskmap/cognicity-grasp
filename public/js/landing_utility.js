@@ -40,7 +40,7 @@ function uploadFile(file, id) {
       processData: false,
       cache: false,
       error: function (data) {
-        console.log("error");
+        console.log("error uploading image");
         console.log(data);
       },
       success: function () {
