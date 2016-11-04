@@ -70,7 +70,7 @@ $(document).ready(function () {
 
 // ***CARD 0*** get/set location
 //TODO: check for geolocation; else if manual, detect map.move to pass location selected = true?
-$('#contentCard0').on('launch', function () {
+$('#contentCard0').one('launch', function () {
   var cardmap = L.map('cardMapWrapper'),
   gpsLocation,
   center;
@@ -100,7 +100,7 @@ $('#contentCard0').on('launch', function () {
       radius: 8
     }).addTo(cardmap);
     $('#resetLocation').prop('disabled', false);
-    reportParams.location = gpsLocation.lng + " " + gpsLocation.lat;
+    reportParams.location = gpsLocation;
   });
   cardmap.once('locationerror', function () { //Execute once, Geolocate error function
     cardmap.setView([-6.2, 106.83], 14); //Jakarta default center
@@ -117,9 +117,15 @@ $('#contentCard0').on('launch', function () {
       $('#resetLocation').prop('disabled', false);
     }
   });
-  $('#next').click(function () { //get selected marker location coordinates
+  var getCenter = function () {
     center = cardmap.getCenter();
-    reportParams.location = center.lng + " " + center.lat;
+    reportParams.location = center;
+    console.log(reportParams.location);
+  };
+  $('#next').click(function () { //get selected marker location coordinates
+    if (cardTracker === 0) {
+      getCenter();
+    }
   });
 });
 
@@ -212,7 +218,7 @@ $('#contentCard3').on('launch', function () {
   $('#descripText').keyup(function () {
     charLength = $(this).val().length;
     $('#charRef').text(charLength + "/140");
-    if (charLength > 0) {             
+    if (charLength > 0) {
       reportParams.description = $('#descripText').val();
     }
   });
