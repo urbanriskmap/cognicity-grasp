@@ -241,6 +241,7 @@ $('#contentCard4').on('launch', function () {
   slidePressed = false,
   slideThreshold = 0.9, //Slider triggers submit function at 90% swipe width
   slideTranslate = 0;
+  var submitted = false; 
   $('#submitKnob').on('touchstart mousedown', function (e) {
     if (isMobile) {
       slideStartPos = e.touches[0].pageX;
@@ -263,7 +264,8 @@ $('#contentCard4').on('launch', function () {
         $('#submitSlider').css({
           'background-color': 'rgba(0, 149, 136, ' + (slideTranslate / (slideThreshold * slideRange)) + ')'
         });
-        if (slideTranslate >= (slideThreshold * slideRange)) {
+        if (slideTranslate >= (slideThreshold * slideRange) && !submitted) {
+          submitted = true;
           cardTracker += 1; //cardTracker value override, skip t&c card & arrive at thanks card
           $('#next').trigger('click');
           var card_id = window.location.pathname.split('/').pop();
