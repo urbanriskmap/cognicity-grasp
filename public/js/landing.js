@@ -308,7 +308,7 @@ $('#contentCard6').on('launch', function () {
   });
   $('#cardFrame').delay(2000).fadeOut(500);
   $('#screen').delay(2000).fadeOut(500);
-  //window.setTimeout(function () {
-    //window.location.replace('/');
-  //}, 2500);
+  window.setTimeout(function () {
+    window.location.replace('/');
+  }, 2500);
 });
