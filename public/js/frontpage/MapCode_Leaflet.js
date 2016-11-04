@@ -10,17 +10,17 @@ L.tileLayer('https://api.mapbox.com/styles/v1/asbarve/ciu0anscx00ac2ipgyvuieuu9/
 var pumpIcon = L.icon({
   iconUrl: '/img/pumpIcon.svg',
   iconSize: [30, 30],
-  iconAnchor: [10, -5]
+  iconAnchor: [20, 10]
 });
 var reportIcon = L.icon({
   iconUrl: '/img/floodIcon.svg',
   iconSize: [25, 25],
-  iconAnchor: [10, -5]
+  iconAnchor: [18, 8]
 });
 var floodGateIcon = L.icon({
   iconUrl: '/img/floodGate.svg',
   iconSize: [25, 25],
-  iconAnchor: [10, -5],
+  iconAnchor: [18, 10],
 
 });
 var waterwaysLinestyle = {
