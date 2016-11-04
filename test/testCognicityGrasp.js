@@ -148,6 +148,71 @@ describe( 'ReportCard', function(){
         test.value(value).is(null);
       });
     });
+
+  });
+});
+
+describe( 'Report Card with real db backing', function(){
+  var pg = require('pg');
+  var logger = require('winston');
+  var ReportCard = require('../ReportCard');
+  ReportCard = new ReportCard(config, pg, logger);
+  ReportCard._generate_id = function(){
+    return 'testtest';
+  };
+  var testData = {
+    card_id: ReportCard._generate_id(),
+    username: 'testUsername',
+    network: 'testNetwork',
+    language: 'testLanguage',
+    created_at: '2016-10-25 10:17:21.658-04', //for insert report
+    location: '-71.0867635 42.359915',
+    text: 'Test description',
+    water_depth: 99,
+  };
+
+  before( 'clear the database', function(done){
+    pg.connect(config.pg.conString, function(err, client, pgDone){
+      client.query("DELETE FROM grasp_cards WHERE card_id = 'testtest';", function(err, result){
+        test.value(err).is(null);
+        client.query("DELETE FROM grasp_reports WHERE card_id = 'testtest';", function(err, result){
+          test.value(err).is(null);
+          done();
+          pgDone();
+        });
+      });
+    });
+  });
+
+  it( 'check issue card', function(done){
+    ReportCard.issueCard( testData.username, testData.network, testData.language, function(err, result){
+      test.value(err).is(null); //make sure the insert doesn't give an error
+      pg.connect(config.pg.conString, function(err, client, pgDone){
+        client.query("SELECT * FROM grasp_cards WHERE card_id = 'testtest';", function(err, result){
+          test.value(err).is(null);
+          test.value(result.rows.length).is(1);
+          var resultObject = result.rows[0];
+          test.value(resultObject.card_id).is(testData.card_id);
+          test.value(resultObject.username).is(testData.username);
+          test.value(resultObject.network).is(testData.network);
+          test.value(resultObject.language).is(testData.language);
+          test.value(resultObject.received).is(false);
+          done();
+          pgDone();
+        });
+      });
+    });
+  });
+
+  it( 'check adding watch card', function(done){
+    ReportCard.watchCards(testData.network, function(err, cards){
+      test.value(err).is(null);
+      test.value(cards.username).is(testData.username);
+      done();
+    });
+    ReportCard.insertReport(testData.created_at, testData.card_id, testData.location, testData.water_depth, testData.text, testData.image_id, function(err){
+      test.value(err).is(null);
+    });
   });
 });
 

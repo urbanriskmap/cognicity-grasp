@@ -139,7 +139,7 @@ ReportCard.prototype = {
      }
    },
 
-   // Switches the status to recieved 
+   // Switches the status to received 
    insertReport: function(card_id, report_object){
      var self = this;
      self.logger.info("Got insert report call to mockReportcard"); 
