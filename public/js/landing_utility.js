@@ -22,6 +22,7 @@ function getPhoto(button, ghostButton) {
     $(ghostButton).trigger('click');
     $(ghostButton).change(function () {
       photo = $(ghostButton)[0].files[0];
+      console.log(photo);
       $('#next').trigger('click');
     });
   });
@@ -45,6 +46,7 @@ function uploadFile(file, id) {
       },
       success: function () {
         console.log("uploaded image successfully!");
+        putReportImageData(id, file.name, response.url);
       }
     });
   });
@@ -75,5 +77,12 @@ function putReportData(id, location, depth, text) {
     water_depth: depth,
     text: text,
     created_at: new Date().toISOString()
+  });
+}
+
+function putReportImageData(id, filename, url_path) {
+  $.put('/report/image/' + id, {
+    filename: filename,
+    url_path: url_path
   });
 }

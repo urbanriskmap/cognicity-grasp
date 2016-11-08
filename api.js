@@ -14,13 +14,11 @@ module.exports = function(app, report_card, logger, s3) {
       }
       if (result.received === false) {
         logger.debug('[/report/:card_id] Report submission for card '+ req.params.card_id);
-        logger.debug('ImageId: ' + req.body.image_id);
         report_card.insertReport(req.body.created_at,
                                   req.params.card_id,
                                   req.body.location.lng + " " + req.body.location.lat, //WKT Format
                                   req.body.water_depth,
-                                  req.body.text,
-                                  req.body.image_id, function(err, result) {
+                                  req.body.text, function(err, result) {
           if(err) {
             res.send('Error - Insert report failed');
             logger.debug('[/report/:card_id] Report submission for card: ' + req.params.card_id + ' failed');
@@ -36,6 +34,35 @@ module.exports = function(app, report_card, logger, s3) {
       } else {
         res.send('Error - report already received');
         logger.debug('[/report/:card_id] Report for card: '+req.params.card_id+ ' already received');
+      }
+    });
+  });
+
+  app.put('/report/image/:card_id', function(req, res){
+    report_card.checkReportImage(req.params.card_id, function(err, result){
+      if (err) {
+        res.send('Error - Report card id invalid');
+        logger.debug('[/report/image/:card_id] Rejected access for card '+ req.params.card_id + '- invalid');
+      }
+      if (result.received === false) {
+        report_card.insertReportImage(req.params.card_id,
+                                      req.body.filename,
+                                      req.body.url_path, function(err, result) {
+          if(err) {
+            res.send('Error - Insert report image failed');
+            logger.debug('[/report/image/:card_id] Report image submission for card: ' + req.params.card_id + ' failed');
+          } else if(result.received === 'invalid'){
+            res.send('Error - invalid input');
+            logger.debug('[/report/image/:card_id] Invalid input sent for card: '+ req.params.card_id);
+          } else {
+            logger.debug('[/report/image/:card_id] Report submission successful. Card id: ' + result);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(result);
+          }
+        });
+      } else {
+        res.send('Insert report image already received');
+        logger.debug('[/report/image/:card_id] Report image already received. Card id: ' + req.params.card_id);
       }
     });
   });
@@ -61,7 +88,7 @@ module.exports = function(app, report_card, logger, s3) {
     var s3params = {
       Bucket: "testimageuploadpetabencana",
       Key: req.params.card_id + ".png",
-      ContentType: req.query.file_type, 
+      ContentType: req.query.file_type,
     };
     s3.getSignedUrl('putObject', s3params, function(err, data){
       if (err){
@@ -72,21 +99,21 @@ module.exports = function(app, report_card, logger, s3) {
           signedRequest : data,
           url: "https://"+s3params.Bucket + ".s3.amazonaws.com/" + s3params.Key
         };
-        logger.debug( "s3 signed request: " + returnData.signedRequest); 
+        logger.debug( "s3 signed request: " + returnData.signedRequest);
         res.write(JSON.stringify(returnData));
         res.end();
       }
     });
   });
 
-  app.get('/report/confirmedReports', function(req, res){
-    logger.debug('[/report/confirmedReports] In GetAllReports API');
+  app.get('/reports/confirmed/', function(req, res){
+    logger.debug('[/reports/confirmed/] In GetAllReports API');
     report_card.getAllReports(function(err, result){
       if(err) {
         res.send('Error - Get all reports failed');
-        logger.debug('[/report/confirmedReports] Get all reports failed');
+        logger.debug('[/reports/confirmed/] Get all reports failed');
       } else {
-        logger.debug('[/report/confirmedReports] Report fetch successful');
+        logger.debug('[/reports/confirmed/] Report fetch successful');
         var topology = topojson.topology(
                         { collection: result[0] },
                         { "property-transform": function(object){ return object.properties; } }

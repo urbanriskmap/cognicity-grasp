@@ -231,6 +231,69 @@ ReportCard.prototype = {
   },
 
   /**
+   * Insert image data into the grasp_report_images table
+   * Call the _insertLogTbl method with the card_id and event type once query is successful
+   *
+   * Function to insert report images
+   * @param  {string} card_id       Unique Card Id
+   * @param  {bigint} image_id      Unique Image Id
+   * @param  {string} filename      Name of the Image file
+   * @param  {string} url_path      Signed URL from S3
+   */
+  _insertReportImage: function(card_id, image_id, filename, url_path, callback){
+
+    var self = this;
+
+    self.dbQuery({
+      text: "INSERT INTO grasp_report_images (card_id, " +
+            "image_id, " +
+            "filename, "+
+            "url_path) " +
+            "VALUES ($1, $2, $3, $4);",
+      values: [ card_id, image_id, filename, url_path ]
+    },  function(err, result) {
+          if (err) {
+            self.logger.error(err);
+            callback(err, null);
+          } else {
+            self.logger.info('Report Image for cardId: ' + card_id + ' submitted successfully');
+            self._insertLogTbl(card_id, "IMAGE UPLOADED", callback);
+          }
+        }
+    );
+  },
+
+  /**
+   * Check if report image entry exists for card Id
+   *
+   * Function to check report image entry
+   * @param  {string} card_id       Unique Card Id
+   */
+  _checkReportImage: function(card_id, callback) {
+
+    var self = this;
+
+    self.dbQuery(
+      {
+      text: "SELECT card_id FROM grasp_report_images WHERE card_id = $1",
+      values: [ card_id ]
+      },
+      function(err, result){
+        if (err){
+          self.logger.error(err);
+          callback(err, null);
+        } else if (result.length > 0){
+          self.logger.info('Report image for card: '+ card_id +' already exists');
+          callback(null, {received : true});
+        } else {
+          self.logger.info('Report image for card: '+ card_id +' yet to be added');
+          callback(null, {received : false});
+        }
+      }
+    );
+  },
+
+  /**
    * Update the card status as Received and add ReportId to the entry in grasp_cards table
    * Call the _insertLogTbl with card_id once query is successful
    *
@@ -254,7 +317,7 @@ ReportCard.prototype = {
             callback(err, null);
           } else {
             self.logger.info('Status for cardId: ' + card_id + ' set as Received');
-            self._insertLogTbl(card_id, 'REPORT RECEIVED', function(card_id) {
+            self._insertLogTbl(card_id, 'REPORT RECEIVED', function(err, card_id) {
               callback(null, report_id);
             });
             self.logger.info('Log updated successfully for cardId: ' + card_id);
@@ -303,12 +366,11 @@ ReportCard.prototype = {
    * @param  {string} location      Geo coordinates in WKT format (long lat)
    * @param  {string} water_depth   Water depth selected on the slider
    * @param  {string} text          Description of the report
-   * @param  {bigint} image_id      Unique Image Id
    */
-  insertReport: function(created_at, card_id, location, water_depth, text, image_id, callback){
+  insertReport: function(created_at, card_id, location, water_depth, text, callback){
 
     var self = this;
-    self.logger.info('Got insert report call to Reportcard');
+    self.logger.info('Got insert report call');
 
     //Check if all entries are valid
     if(shortid.isValid(card_id) &&
@@ -316,33 +378,78 @@ ReportCard.prototype = {
       !string(location).isEmpty() &&
       !string(water_depth).isEmpty() &&
       !string(text).isEmpty()) {
-      self._insertReport(created_at, card_id, location, water_depth, text, 0, callback);
+      self._insertReport(created_at, card_id, location, water_depth, text, 123, callback);
     } else {
       self.logger.error('Invalid input received from UI');
       callback(null, {received : 'invalid'});
     }
   },
 
+  /**
+   * Insert image data into the grasp_report_images table and update log
+   *
+   * @param  {string} card_id       Unique Card Id
+   * @param  {bigint} image_id      Unique Image Id
+   * @param  {string} filename      Name of the Image file
+   * @param  {string} url_path      Signed URL from S3
+   */
+  insertReportImage: function(card_id, filename, url_path, callback){
+
+    var self = this;
+    self.logger.info('Got insert report image call');
+
+    //Check if all entries are valid
+    if(shortid.isValid(card_id) &&
+      !string(filename).isEmpty() &&
+      !string(url_path).isEmpty()) {
+      self._insertReportImage(card_id, 123, filename, url_path, callback);
+    } else {
+      self.logger.error('Invalid photo data received from UI');
+      callback(null, {received : 'invalid'});
+    }
+  },
+
+  /**
+   * Check if report image entry exists for card Id
+   * @param {string} card_id Unique card identifier
+   */
+  checkReportImage: function(card_id, callback){
+     var self = this;
+     if (shortid.isValid(card_id)){
+       self._checkReportImage(card_id, callback);
+     }
+     else {
+       self.logger.info('Checked card '+card_id+' was found invalid by shortid');
+       callback(null, {received : null});
+     }
+  },
 
   getAllReports: function(callback){
     var self = this;
+    self.logger.info('In ReportCard.js getAllReports');
     var queryObject = {
         text: "SELECT 'FeatureCollection' As type, " +
               "array_to_json(array_agg(f)) As features " +
               "FROM (SELECT 'Feature' As type, " +
-              "ST_AsGeoJSON(lg.location)::json As geometry, " +
+              "ST_AsGeoJSON(gr.location)::json As geometry, " +
               "row_to_json( " +
               "(SELECT l FROM " +
-              "(SELECT pkey, " +
-              "created_at at time zone 'EDT' created_at, " +
-              "status, " +
-              "text, " +
-              "image_id, " +
-              "network, " +
-              "water_depth) " +
+              "(SELECT gc.pkey, " +
+              "gr.created_at at time zone 'EDT' created_at, " +
+              "gr.status, " +
+              "gr.text, " +
+              "gri.url_path, " +
+              "gri.image_id, " +
+              "gc.network, " +
+              "gr.water_depth) " +
               " As l) " +
               ") As properties " +
-              "FROM grasp_reports As lg, grasp_cards As lh WHERE lg.card_id = lh.card_id" +
+              "FROM grasp_reports As gr, " +
+              "grasp_cards As gc, " +
+              "grasp_report_images as gri " +
+              "WHERE gc.received = TRUE AND " +
+              "gr.card_id = gc.card_id AND " +
+              "gc.card_id = gri.card_id" +
               " ) As f ;",
         values: [ ] };
     self.dbQuery(queryObject, function(error, result) {
