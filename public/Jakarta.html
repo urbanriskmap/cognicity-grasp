@@ -115,16 +115,20 @@ map.addControl(geolocate);
 // Add zoom and rotation controls to the map.
 map.addControl(new mapboxgl.Navigation());
 
-var url = 'https://raw.githubusercontent.com/ojha-url/URL_Internal/master/Test_jakarta.json';
-
+//var url = 'https://raw.githubusercontent.com/ojha-url/URL_Internal/master/Test_jakarta.json';
 //var url = 'https://raw.githubusercontent.com/urbanriskmap/cognicity-grasp/mvp-cards/mocks/mockReports.json';
+
+var response;
+$.get('/reports/confirmed/', {}, function (response) {
+  console.log('Get All Reports successful');
+});
 
 map.on('load', function () {
     window.setInterval(function() {
-        map.getSource('report').setData(url);
+        map.getSource('report').setData(response); //Not sure why same thing is happening in two files 
     }, 2000);
 
-    map.addSource('report', { type: 'geojson', data: url });
+    map.addSource('report', { type: 'geojson', data: response });
 
     map.addLayer({
         "id": "report",

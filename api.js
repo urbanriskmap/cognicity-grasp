@@ -107,21 +107,17 @@ module.exports = function(app, report_card, logger, s3) {
   });
 
   app.get('/reports/confirmed/', function(req, res){
-    logger.debug('[/reports/confirmed/] In GetAllReports API');
+    logger.debug('[/reports/confirmed/] In getAllReports API');
     report_card.getAllReports(function(err, result){
       if(err) {
         res.send('Error - Get all reports failed');
         logger.debug('[/reports/confirmed/] Get all reports failed');
       } else {
         logger.debug('[/reports/confirmed/] Report fetch successful');
-        var topology = topojson.topology(
-                        { collection: result[0] },
-                        { "property-transform": function(object){ return object.properties; } }
-                        );
         var responseData = {
           code: 200,
           headers: {"Content-type":"application/json"},
-          body: JSON.stringify(topology, "utf8")
+          body: JSON.stringify(result[0], "utf8")
         };
         res.writeHead(responseData.code, responseData.headers);
       	res.end(responseData.body);
