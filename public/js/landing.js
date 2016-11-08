@@ -122,7 +122,7 @@ $('#contentCard0').on('launch', function () {
     reportParams.location = center;
     console.log(reportParams.location);
   };
-  $('#next').click(function () { //get selected marker location coordinates
+  $('#next').on('touchstart mousedown', function () { //get selected marker location coordinates
     if (cardTracker === 0 ) {
       getMarkerCenter();
     }
