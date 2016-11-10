@@ -64,7 +64,7 @@ ReportCardBot.prototype = {
 
     self.dbQuery(
       {
-        text: "INSERT INTO grasp_log (card_id, event_type) VALUES ($1, $2);",
+        text: "INSERT INTO grasp.log (card_id, event_type) VALUES ($1, $2);",
         values: [ card_id, event_type]
       },
       function(err, result){
@@ -96,7 +96,7 @@ ReportCardBot.prototype = {
 
     self.dbQuery(
       {
-      text: "INSERT INTO grasp_cards (card_id, username, network, language, received) VALUES ($1, $2, $3, $4, FALSE);",
+      text: "INSERT INTO grasp.cards (card_id, username, network, language, received) VALUES ($1, $2, $3, $4, FALSE);",
       values: [ card_id, username, network, language ]
       },
       function(err, result){
