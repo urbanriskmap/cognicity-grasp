@@ -22,7 +22,6 @@ function getPhoto(button, ghostButton) {
     $(ghostButton).trigger('click');
     $(ghostButton).change(function () {
       photo = $(ghostButton)[0].files[0];
-      console.log(photo);
       $('#next').trigger('click');
     });
   });

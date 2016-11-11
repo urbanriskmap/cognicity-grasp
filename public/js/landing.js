@@ -120,7 +120,6 @@ $('#contentCard0').on('launch', function () {
   var getMarkerCenter = function () {
     center = cardmap.getCenter();
     reportParams.location = center;
-    console.log(reportParams.location);
   };
   $('#next').on('touchstart mousedown', function () { //get selected marker location coordinates
     if (cardTracker === 0 ) {

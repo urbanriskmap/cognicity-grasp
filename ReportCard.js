@@ -434,7 +434,7 @@ ReportCard.prototype = {
               "ST_AsGeoJSON(gr.location)::json As geometry, " +
               "row_to_json( " +
               "(SELECT l FROM " +
-              "(SELECT gc.pkey, " +
+              "(SELECT gc.card_id, " +
               "gr.created_at at time zone 'EDT' created_at, " +
               "gr.status, " +
               "gr.text, " +

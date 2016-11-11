@@ -73,7 +73,10 @@ var BandungParams = {
 
 function onEachFeature(feature, layer) {
     if (feature.properties && feature.properties.status) {
-      layer.bindPopup('<center><img src="'+feature.properties.url_path+'" height="100%" width="100%"><br></center><br> <b>Status: </b>' + feature.properties.status + '<br><b>Water depth: </b>' + feature.properties.water_depth + 'cm');
+      $.get('/report/retrieveimage/' + feature.properties.card_id, function (response) {
+        response = JSON.parse(response);
+        layer.bindPopup('<center><img src="'+response.signedRequest+'" height="100%" width="100%"><br></center><br> <b>Status: </b>' + feature.properties.status + '<br><b>Water depth: </b>' + feature.properties.water_depth + 'cm');
+      });
     } else if (feature.properties && feature.properties.name) {
       layer.bindPopup('<b>Name: </b>' + feature.properties.name);
     }
