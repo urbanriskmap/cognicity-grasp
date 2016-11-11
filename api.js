@@ -1,7 +1,5 @@
 'use strict';
 
-var topojson = require('topojson');
-
 // Example of card validation by HTTP server
 module.exports = function(app, report_card, logger, s3) {
 
