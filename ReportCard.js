@@ -201,9 +201,8 @@ ReportCard.prototype = {
    * @param  {string} location      Geo coordinates in WKT format (long lat)
    * @param  {string} water_depth   Water depth selected on the slider
    * @param  {string} text          Description of the report
-   * @param  {bigint} image_id      Unique Image Id
    */
-  _insertReport: function(created_at, card_id, location, water_depth, text, image_id, callback){
+  _insertReport: function(created_at, card_id, location, water_depth, text, callback){
 
     var self = this;
 
@@ -213,11 +212,10 @@ ReportCard.prototype = {
             "water_depth, "+
             "text, " +
             "created_at, " +
-            "image_id, " +
             "status) " +
-            "VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5, $6, $7) " +
+            "VALUES ($1, ST_GeomFromText('POINT(' || $2 || ')',4326), $3, $4, $5, $6) " +
             "RETURNING pkey;",
-      values: [ card_id, location, water_depth, text, created_at, image_id, "Confirmed" ]
+      values: [ card_id, location, water_depth, text, created_at, "Confirmed" ]
     },  function(err, result) {
           if (err) {
             self.logger.error(err);
@@ -236,28 +234,27 @@ ReportCard.prototype = {
    *
    * Function to insert report images
    * @param  {string} card_id       Unique Card Id
-   * @param  {bigint} image_id      Unique Image Id
    * @param  {string} filename      Name of the Image file
    * @param  {string} url_path      Signed URL from S3
    */
-  _insertReportImage: function(card_id, image_id, filename, url_path, callback){
+  _insertReportImage: function(card_id, filename, url_path, callback){
 
     var self = this;
 
     self.dbQuery({
       text: "INSERT INTO grasp_report_images (card_id, " +
-            "image_id, " +
             "filename, "+
-            "url_path) " +
-            "VALUES ($1, $2, $3, $4);",
-      values: [ card_id, image_id, filename, url_path ]
+            "url_path) "+
+            "VALUES ($1, $2, $3) "+
+            "RETURNING pkey;",
+      values: [ card_id, filename, url_path ]
     },  function(err, result) {
           if (err) {
             self.logger.error(err);
             callback(err, null);
           } else {
             self.logger.info('Report Image for cardId: ' + card_id + ' submitted successfully');
-            self._insertLogTbl(card_id, "IMAGE UPLOADED", callback);
+            self._updateGraspReport(card_id, result[0].pkey, callback);
           }
         }
     );
@@ -327,6 +324,35 @@ ReportCard.prototype = {
   },
 
   /**
+   * Update the report with image id from grasp_report_images table
+   * Call the _insertLogTbl with card_id once query is successful
+   *
+   * Function to update report
+   * @param  {string} created_at    ISO8601 format date string
+   * @param  {string} card_id       Unique Card Id
+   * @param  {bigint} image_id      Unique Image ID
+   */
+  _updateGraspReport: function(card_id, image_id, callback){
+
+    var self = this;
+
+    self.dbQuery({
+      text: "UPDATE grasp_reports SET image_id = $1 WHERE card_id = $2",
+       values: [ image_id, card_id ]
+    },  function(err, result) {
+          if (err) {
+            self.logger.error(err);
+            callback(err, null);
+          } else {
+            self.logger.info('ImageID: ' + image_id + ' set successfully for cardId: ' + card_id);
+            self._insertLogTbl(card_id, "IMAGE UPLOADED", callback);
+            self.logger.info('Image upload log updated successfully for cardId: ' + card_id);
+          }
+        }
+    );
+  },
+
+  /**
    * Create card unique id, register in database, and return value via callback
    * @param {string} username Unique username requesting card (e.g. @user)
    * @param {string} network Name of user social messaging network (e.g. Twitter)
@@ -378,7 +404,7 @@ ReportCard.prototype = {
       !string(location).isEmpty() &&
       !string(water_depth).isEmpty() &&
       !string(text).isEmpty()) {
-      self._insertReport(created_at, card_id, location, water_depth, text, 123, callback);
+      self._insertReport(created_at, card_id, location, water_depth, text, callback);
     } else {
       self.logger.error('Invalid input received from UI');
       callback(null, {received : 'invalid'});
@@ -389,7 +415,6 @@ ReportCard.prototype = {
    * Insert image data into the grasp_report_images table and update log
    *
    * @param  {string} card_id       Unique Card Id
-   * @param  {bigint} image_id      Unique Image Id
    * @param  {string} filename      Name of the Image file
    * @param  {string} url_path      Signed URL from S3
    */
@@ -402,7 +427,7 @@ ReportCard.prototype = {
     if(shortid.isValid(card_id) &&
       !string(filename).isEmpty() &&
       !string(url_path).isEmpty()) {
-      self._insertReportImage(card_id, 123, filename, url_path, callback);
+      self._insertReportImage(card_id, filename, url_path, callback);
     } else {
       self.logger.error('Invalid photo data received from UI');
       callback(null, {received : 'invalid'});
@@ -439,7 +464,7 @@ ReportCard.prototype = {
               "gr.status, " +
               "gr.text, " +
               "gri.url_path, " +
-              "gri.image_id, " +
+              "gr.image_id, " +
               "gc.network, " +
               "gr.water_depth) " +
               " As l) " +
