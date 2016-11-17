@@ -54,7 +54,6 @@ CREATE TABLE grasp_reports (
 CREATE TABLE grasp_report_images (
   pkey bigserial NOT NULL,
   card_id varchar NOT NULL,
-  image_id bigint,
   filename varchar,
   url_path varchar,
   CONSTRAINT pkey_grasp_report_images PRIMARY KEY (pkey)

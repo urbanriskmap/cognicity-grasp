@@ -31,12 +31,17 @@ var waterwaysLinestyle = {
 
 var cityLayers = L.layerGroup();
 var layerToggle;
+// var response;
+// $.get('/reports/confirmed/', {}, function (response) {
+//    console.log('Get All Reports successful MapCode.js');
+// });
+// console.log(response);
 
 //Add city objects with following parameters, and data sources with respective names & icons
 var jakartaParams = {
   city: "Jakarta",
   center: [-6.15, 106.83],
-  urlList: ["https://raw.githubusercontent.com/ojha-url/URL_Internal/master/Test_jakarta.json", "https://petajakarta.org/banjir/data/api/v2/infrastructure/pumps","https://petajakarta.org/banjir/data/api/v2/infrastructure/floodgates","https://petajakarta.org/banjir/data/api/v2/infrastructure/waterways"],
+  urlList: ["/reports/confirmed", "https://petajakarta.org/banjir/data/api/v2/infrastructure/pumps","https://petajakarta.org/banjir/data/api/v2/infrastructure/floodgates","https://petajakarta.org/banjir/data/api/v2/infrastructure/waterways"],
   layerList: ["Reports", "Pumps", "Flood Gates", 'Waterways'],
   styleList: [reportIcon, pumpIcon, floodGateIcon, waterwaysLinestyle]
 };
@@ -44,7 +49,7 @@ var jakartaParams = {
 var cambridgeParams = {
   city: "Cambridge",
   center: [42.3601, -71.0942],
-  urlList: ["https://raw.githubusercontent.com/ojha-url/URL_Internal/master/test-cambridge.json"],
+  urlList: ["/reports/confirmed"], //There will be new Reports API by area name. Until then.
   layerList: ["Reports"],
   styleList: [reportIcon]
 };
@@ -52,7 +57,7 @@ var cambridgeParams = {
 var SurabayaParams = {
   city: "Surabaya",
   center: [-7.25,112.75],
-  urlList: ["https://raw.githubusercontent.com/ojha-url/URL_Internal/master/test-cambridge.json"],
+  urlList: ["/reports/confirmed"],
   layerList: ["Reports"],
   styleList: [reportIcon]
 };
@@ -61,21 +66,17 @@ var SurabayaParams = {
 var BandungParams = {
   city: "Bandung",
   center: [-6.91,107.61],
-  urlList: ["https://raw.githubusercontent.com/ojha-url/URL_Internal/master/test-cambridge.json"],
+  urlList: ["/reports/confirmed"],
   layerList: ["Reports"],
   styleList: [reportIcon]
 };
 
-/* Function not defined. Update api.js to make call
-$.get('/reports/confirmed/', {}, function (error, response) {
-  console.log('Get All Reports successful');
-  console.log(response);
-});
-*/
-
 function onEachFeature(feature, layer) {
     if (feature.properties && feature.properties.status) {
-      layer.bindPopup('<center><img src="'+feature.properties.image_url+'" height="100%" width="100%"><br></center><br> <b>Status: </b>' + feature.properties.status + '<br><b>Water depth: </b>' + feature.properties.water_depth + 'cm');
+      $.get('/report/retrieveimage/' + feature.properties.card_id, function (response) {
+        response = JSON.parse(response);
+        layer.bindPopup('<center><img src="'+response.signedRequest+'" height="100%" width="100%"><br></center><br> <b>Status: </b>' + feature.properties.status + '<br><b>Water depth: </b>' + feature.properties.water_depth + 'cm');
+      });
     } else if (feature.properties && feature.properties.name) {
       layer.bindPopup('<b>Name: </b>' + feature.properties.name);
     }
@@ -119,7 +120,6 @@ function updateMapView(cityObject) {
   layerToggle.addTo(map);
   cityLayers.addTo(map);
 }
-
 
 //Add click events for different cities
 $('#Cambridge').click(function () {

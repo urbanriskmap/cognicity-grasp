@@ -1,7 +1,5 @@
 'use strict';
 
-var topojson = require('topojson');
-
 // Example of card validation by HTTP server
 module.exports = function(app, report_card, logger, s3) {
 
@@ -106,22 +104,40 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
+  app.get('/report/retrieveimage/:card_id', function(req, res, next){
+    var s3params = {
+      Bucket: "testimageuploadpetabencana",
+      Key: req.params.card_id + ".png",
+    };
+    logger.info('Getting signedURL for cardID: ' + req.params.card_id);
+    s3.getSignedUrl('getObject', s3params, function(err, data){
+      if (err){
+        logger.error('Could not get signed url from S3');
+        logger.error(err);
+      } else {
+        var returnData = {
+          signedRequest : data,
+          url: "https://" + s3params.Bucket + ".s3.amazonaws.com/" + s3params.Key
+        };
+        logger.debug('S3 signed request: ' + returnData.signedRequest);
+        res.write(JSON.stringify(returnData));
+        res.end();
+      }
+    });
+  });
+
   app.get('/reports/confirmed/', function(req, res){
-    logger.debug('[/reports/confirmed/] In GetAllReports API');
+    logger.debug('[/reports/confirmed/] In getAllReports API');
     report_card.getAllReports(function(err, result){
       if(err) {
         res.send('Error - Get all reports failed');
         logger.debug('[/reports/confirmed/] Get all reports failed');
       } else {
         logger.debug('[/reports/confirmed/] Report fetch successful');
-        var topology = topojson.topology(
-                        { collection: result[0] },
-                        { "property-transform": function(object){ return object.properties; } }
-                        );
         var responseData = {
           code: 200,
           headers: {"Content-type":"application/json"},
-          body: JSON.stringify(topology, "utf8")
+          body: JSON.stringify(result[0], "utf8")
         };
         res.writeHead(responseData.code, responseData.headers);
       	res.end(responseData.body);

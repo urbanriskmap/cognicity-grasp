@@ -210,7 +210,7 @@ describe( 'Report Card with real db backing', function(){
       test.value(cards.username).is(testData.username);
       done();
     });
-    ReportCard.insertReport(testData.created_at, testData.card_id, testData.location, testData.water_depth, testData.text, testData.image_id, function(err){
+    ReportCard.insertReport(testData.created_at, testData.card_id, testData.location, testData.water_depth, testData.text, function(err){
       test.value(err).is(null);
     });
   });

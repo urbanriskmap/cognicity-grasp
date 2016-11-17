@@ -120,9 +120,8 @@ $('#contentCard0').on('launch', function () {
   var getMarkerCenter = function () {
     center = cardmap.getCenter();
     reportParams.location = center;
-    console.log(reportParams.location);
   };
-  $('#next').click(function () { //get selected marker location coordinates
+  $('#next').on('touchstart mousedown', function () { //get selected marker location coordinates
     if (cardTracker === 0 ) {
       getMarkerCenter();
     }
@@ -241,7 +240,7 @@ $('#contentCard4').on('launch', function () {
   slidePressed = false,
   slideThreshold = 0.9, //Slider triggers submit function at 90% swipe width
   slideTranslate = 0;
-  var submitted = false; 
+  var submitted = false;
   $('#submitKnob').on('touchstart mousedown', function (e) {
     if (isMobile) {
       slideStartPos = e.touches[0].pageX;
@@ -273,10 +272,6 @@ $('#contentCard4').on('launch', function () {
             uploadFile(photo, card_id); //Upload photo
           }
           putReportData(card_id, reportParams.location, reportParams.height, reportParams.description); //Push input values
-          // $.get('/reports/confirmed/', {}, function (error, response) {
-          //   console.log('Get All Reports successful');
-          //   console.log(response);
-          // });
         }
       }
     });
