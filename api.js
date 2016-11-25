@@ -2,7 +2,14 @@
 
 // Example of card validation by HTTP server
 module.exports = function(app, report_card, logger, s3) {
-
+  /**
+   * Inserts report for the given param card_id in the DB
+   * @param  {string} card_id       Unique Card Id
+   * @param  {string} created_at    ISO8601 format date string
+   * @param  {string} location      Geo coordinates in WKT format (long lat)
+   * @param  {string} water_depth   Water depth selected on the slider
+   * @param  {string} text          Description of the report
+   */
   app.put('/report/:card_id', function(req, res){
     report_card.checkCardStatus(req.params.card_id, function(err, result){
       logger.debug('In /report/:card_id API');
@@ -36,6 +43,13 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
+  /**
+   * Insert image data for the report in DB for the given param card_id
+   *
+   * @param  {string} card_id       Unique Card Id
+   * @param  {string} filename      Name of the Image file
+   * @param  {string} url_path      Signed URL from S3
+   */
   app.put('/report/image/:card_id', function(req, res){
     report_card.checkReportImage(req.params.card_id, function(err, result){
       if (err) {
@@ -65,6 +79,10 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
+  /**
+   * Gets report for the given param card_id
+   * @param  {string} card_id       Unique Card Id
+   */
   app.get('/report/:card_id', function(req, res, next){
       report_card.checkCardStatus(req.params.card_id, function(err, result) {
       if (err) {
@@ -82,6 +100,11 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
+  /**
+   * Gets signedURL to upload an image in AWS for the param card_id
+   * @param  {string} card_id       Unique Card Id
+   * @param  {string} file_type     Type of the file uploaded
+   */
   app.get('/report/imageupload/:card_id', function(req, res, next){
     var s3params = {
       Bucket: "testimageuploadpetabencana",
@@ -104,6 +127,10 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
+  /**
+   * Gets signedURL to retrieve an image from AWS for the param card_id
+   * @param  {string} card_id       Unique Card Id
+   */
   app.get('/report/retrieveimage/:card_id', function(req, res, next){
     var s3params = {
       Bucket: "testimageuploadpetabencana",
@@ -126,6 +153,9 @@ module.exports = function(app, report_card, logger, s3) {
     });
   });
 
+  /**
+   * Fetches all the confirmed reports from the DB in GeoJSON format
+   */
   app.get('/reports/confirmed/', function(req, res){
     logger.debug('[/reports/confirmed/] In getAllReports API');
     report_card.getAllReports(function(err, result){
