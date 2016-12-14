@@ -151,11 +151,11 @@ Bot.prototype = {
 
         self.report_card.watchCards(self.config.network.name, function(err, report){
           if (err){
-            self.logger.error("Could not watch cards from Bot.js"); 
+            self.logger.error("Could not watch cards from Bot.js: " + err);
           } else {
             callback(err, report.username,
 
-                     report.username+'- '+self._getDialogue(self.dialogue.confirmation,
+                     self._getDialogue(self.dialogue.confirmation,
                                                             report.language)+' https://petabencana.id/jakarta/'+report.report_id);
           }
         });

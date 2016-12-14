@@ -148,9 +148,9 @@ ReportCardBot.prototype = {
           self.logger.info('Payload: ' + msg.payload);
           var notification = JSON.parse(msg.payload);
           self.logger.info('Parse successful');
-          if (notification.grasp_cards.network === network){
+          if (notification.cards.network === network){
             self.logger.info('Received card submission');
-            callback(null, notification.grasp_cards);
+            callback(null, notification.cards);
           }
          }
          catch (e){
