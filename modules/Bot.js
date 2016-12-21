@@ -154,9 +154,7 @@ Bot.prototype = {
             self.logger.error("Could not watch cards from Bot.js: " + err);
           } else {
             callback(err, report.username,
-
-                     self._getDialogue(self.dialogue.confirmation,
-                                                            report.language)+' https://petabencana.id/jakarta/'+report.report_id);
+             self._getDialogue(self.dialogue.confirmation, report.language)+' '+self.config.map_url_prefix+'/'+self.config.instance_regions[report.report_impl_area]+'/'+report.report_id);
           }
         });
       }

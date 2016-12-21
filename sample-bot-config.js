@@ -1,12 +1,15 @@
 // Bot Config object
   var config =  {
-    card_url_prefix: 'http://dev.petabencana.id/cards',
+    card_url_prefix: 'https://dev.petabencana.id/cards',
+    map_url_prefix:  'https://dev.petabencana.id',
     default_language: 'en',
     network: {
       name: 'twitter'
     },
-    location: {
-      name: 'jakarta'
+    instance_regions: {
+      jbd: 'jakarta',
+      sby: 'surabaya',
+      bdg: 'bandung'
     }
   };
 
