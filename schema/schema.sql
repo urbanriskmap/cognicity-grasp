@@ -1,29 +1,3 @@
---Table grasp_all_users
-/*CREATE TABLE grasp_all_users (
-  pkey bigserial NOT NULL,
-  fkey bigint NOT NULL,
-  network varchar NOT NULL,
-  CONSTRAINT pkey_grasp_all_users PRIMARY KEY (pkey)
-);
-
---Table grasp_twitter_users
-CREATE TABLE grasp_twitter_users (
-  pkey bigserial NOT NULL,
-  username varchar NOT NULL,
-  CONSTRAINT grasp_twitter_users PRIMARY KEY (pkey)
-);
-
---Table grasp_whatsapp_users
-CREATE TABLE grasp_whatsapp_users (
-  pkey bigserial NOT NULL,
-  phone integer NOT NULL,
-  CONSTRAINT grasp_whatsapp_users PRIMARY KEY (pkey)
-);*/
-
--- Spatial extensions
-CREATE EXTENSION postgis;
-CREATE EXTENSION postgis_topology;
-
 --Table grasp_card_id (card_id, received[true/false])
 CREATE TABLE grasp_cards (
   pkey bigserial NOT NULL,
@@ -83,3 +57,26 @@ CREATE TRIGGER watch_grasp_cards_trigger
   FOR EACH ROW
   WHEN (NEW.received = TRUE)
   EXECUTE PROCEDURE notify_grasp_cards_trigger();
+
+--Push grasp reports into reports table
+-- Function: public.update_all_reports_from_tweets()
+
+-- DROP FUNCTION public.update_all_reports_from_tweets();
+
+CREATE OR REPLACE FUNCTION public.update_all_reports_from_grasp()
+  RETURNS trigger AS
+$BODY$
+	BEGIN
+		IF (TG_OP = 'UPDATE') THEN
+			INSERT INTO all_reports (fkey, created_at, text, source, lang, url, the_geom) SELECT NEW.pkey, NEW.created_at, NEW.text, 'grasp', NEW.lang, NEW.url, NEW.the_geom;
+			RETURN NEW;
+		ELSIF (TG_OP = 'INSERT') THEN
+			INSERT INTO all_reports (fkey, created_at, text, source, lang, url, the_geom) SELECT NEW.pkey, NEW.created_at, NEW.text, 'grasp', NEW.lang, NEW.url, NEW.the_geom;
+			RETURN NEW;
+		END IF;
+	END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.update_all_reports_from_grasp()
+  OWNER TO postgres;
