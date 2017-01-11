@@ -1,8 +1,8 @@
 // Bot Config object
   var config =  {
-    card_url_prefix: 'https://dev.petabencana.id/cards',
-    map_url_prefix:  'https://dev.petabencana.id/map',
-    default_language: 'en',
+    card_url_prefix: 'https://petabencana.id/cards',
+    map_url_prefix:  'https://petabencana.id/map',
+    default_language: 'id',
     network: {
       name: 'twitter'
     },
