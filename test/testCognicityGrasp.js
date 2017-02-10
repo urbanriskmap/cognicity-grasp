@@ -5,8 +5,8 @@ var test = require('unit.js');
 var ReportCard = require('../modules/ReportCardBot.js');
 var Bot = require('../modules/Bot.js');
 
-var config = require('../sample-bot-config');
-var dialogue = require('../sample-bot-dialogue');
+var config = require('../bot-config');
+var dialogue = require('../bot-dialogue');
 
 // Create grasp object with empty objects
 // Mock objects as required for each test suite
