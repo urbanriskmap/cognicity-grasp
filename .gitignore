@@ -29,7 +29,7 @@ node_modules
 # JSDoc generated documentation
 docs/
 
-# For vim swap files: 
+# For vim swap files:
 swap
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]
@@ -43,3 +43,5 @@ tags
 
 #for osx DS_Store
 .DS_Store
+
+.env
