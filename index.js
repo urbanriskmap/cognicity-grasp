@@ -9,8 +9,8 @@
 var ReportCardBot = require('./modules/ReportCardBot.js');
 var Bot = require('./modules/Bot.js');
 
-var bot_dialogue = require('./sample-bot-dialogue.js');
-var bot_config = require('./sample-bot-config.js');
+var bot_dialogue = require('./bot-dialogue.js');
+var bot_config = require('./bot-config.js');
 
 module.exports = function(config, logger, pg){
 
