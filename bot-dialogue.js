@@ -5,8 +5,8 @@ var dialogue = {
   },
   requests: {
     card : {
-      en: 'Hi! Please send me your flood report using this link',
-      id: 'Hi! Laporan menggunakan link ini, terima kasih.'
+      en: 'Hi! Open this link to input flood location, flood description, & photos.',
+      id: 'Hai! Gunakan link ini untuk menginput lokasi banjir, keterangan, & foto.'
     }
   },
   confirmation: {
