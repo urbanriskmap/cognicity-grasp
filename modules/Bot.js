@@ -140,24 +140,7 @@ Bot.prototype = {
           self._requestCard(username, self.config.network.name, language, callback);
           break;
       }
-    },
-
-      /**
-       * Function to watch reports table and confirm when report recieved
-       * @param {function} callback Callback function for Bot response
-       */
-      confirm: function(callback){
-        var self = this;
-
-        self.report_card.watchCards(self.config.network.name, function(err, report){
-          if (err){
-            self.logger.error("Could not watch cards from Bot.js: " + err);
-          } else {
-            callback(err, report.username,
-             self._getDialogue(self.dialogue.confirmation, report.language)+' '+self.config.map_url_prefix+'/'+self.config.instance_regions[report.report_impl_area]+'/'+report.report_id);
-          }
-        });
-      }
+    }
 };
 
 module.exports = Bot;
