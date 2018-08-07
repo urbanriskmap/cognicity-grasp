@@ -1,3 +1,5 @@
+# DEPRECATED
+
 [![Build Status](https://travis-ci.org/urbanriskmap/cognicity-grasp.svg?branch=master)](https://travis-ci.org/urbanriskmap/cognicity-grasp)
 
 CogniCity GRASP
